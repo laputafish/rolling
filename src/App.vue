@@ -1,0 +1,388 @@
+<template>
+<div id="app">
+  <div class="active-number-wrapper">
+    <div class="active-number" :style="activeNumberStyle" v-if="useText">{{ number }}</div>
+    <div class="active-number digit" :class="'digit'+digit2" v-if="!useText && digit2!=0"></div>
+    <div class="active-number digit" :class="'digit'+digit1" v-if="!useText && digit1!=0"></div>
+    <div class="active-number digit" :class="'digit'+digit0" v-if="!useText"></div>
+  </div>
+  <div id="footer-pane">
+    <div class="drawn-numbers">
+      <div v-for="d in drawn" :style="drawnNumberStyle" class="drawn-number">{{ d }}</div>
+    </div>
+    <div class="button-group">
+      <div class="btn-group" role="group">
+        <button :disabled="(running || numbers.length==0)" :class="{enabled:(!running && numbers.length>0)}" class="btn btn-default" @click="startRolling">Start</button>
+        <button :disabled="running" :class="{enabled:!running}" class="btn btn-default" @click="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<script>
+export default {
+  name: 'app',
+  methods: {
+    reset () {
+      let vm = this
+      vm.drawn = []
+      vm.resetNumbers()
+    },
+    startRolling () {
+      let vm = this
+
+      if (vm.numbers.length === 0) return
+      if (vm.numbers.length === 1) {
+        vm.number = vm.numbers[0]
+        vm.parseDigits()
+        vm.drawn.push(vm.number)
+        vm.numbers.splice(0, 1)
+        return
+      }
+      vm.running = true
+      setTimeout(() => {
+        vm.running = false
+      }, vm.duration * 1000)
+
+      vm.runningId = setInterval(() => {
+        do {
+          vm.selectedIndex = Math.floor(Math.random() * vm.numbers.length)
+        } while (vm.selectedIndex === vm.lastIndex && vm.numbers.length > 1)
+        vm.lastIndex = vm.selectedIndex
+
+        vm.number = vm.numbers[vm.selectedIndex]
+        vm.parseDigits()
+        if (!vm.running) {
+          clearInterval(vm.runningId)
+          vm.runningId = false
+          vm.drawn.push(vm.number)
+          vm.numbers.splice(vm.selectedIndex, 1)
+        }
+      }, 100)
+    },
+    resetNumbers () {
+      let vm = this
+      vm.drawn = []
+
+      let dataURL = '/static/config.json'
+      vm.$http.get(dataURL).then(function (response) {
+        return response.json()
+      }, function (error) {
+        console.log('error: ', error)
+      }).then(function (data) {
+        console.log('got config.json')
+        if (data.total) {
+          vm.total = data.total
+          vm.numbers = [vm.total]
+        }
+        if (data.duration) {
+          vm.duration = data.duration
+        }
+        if (data.useText) {
+          vm.useText = data.useText
+        }
+        if (data.active_number_color) {
+          vm.activeNumberStyle.color = data.active_number_color
+        }
+        if (data.drawn_number_bkgd_color) {
+          vm.drawnNumberStyle.backgroundColor = data.drawn_number_bkgd_color
+          vm.drawnNumberStyle.color = data.drawn_number_color
+        }
+        for (var i = 0; i < vm.total; i++) {
+          vm.numbers[i] = i + 1
+        }
+        vm.number = 1
+        vm.parseDigits()
+      })
+    },
+    parseDigits () {
+      let vm = this
+      vm.digit0 = vm.number % 10
+      vm.digit1 = Math.floor(vm.number / 10) % 10
+      vm.digit2 = Math.floor(vm.number / 100)
+    }
+  },
+  mounted () {
+    let vm = this
+    vm.resetNumbers()
+  },
+  computed: {
+    getDigit0Class () {
+      let vm = this
+      return 'digit' + vm.number % 10
+    },
+    getDigit1Class () {
+      let vm = this
+      return vm.number >= 10 ? 'digit' + String(vm.number).substring(-1, 1) : ''
+    },
+    getDigit2Class () {
+      let vm = this
+      return vm.number >= 100 ? 'digit' + String(vm.number).substring(-2, 1) : ''
+    }
+  },
+  data () {
+    return {
+      useText: false,
+      runningId: null,
+      number: 1,
+      drawn: [],
+      numbers: [],
+      running: false,
+      total: 100,
+      lastIndex: -1,
+      digit0: 0,
+      digit1: 0,
+      digit2: 0,
+      duration: 3,
+      activeNumberStyle: {color: '#fffaae'},
+      drawnNumberStyle: {color: 'black', backgroundColor: 'white'}
+    }
+  }
+}
+</script>
+
+<style>
+  .active-number-wrapper {
+    width: 100%;
+    top:38%;
+    text-align: center;
+    height: 200px;
+    position: absolute;
+  }
+  .active-number-wrapper .active-number.digit {
+    margin-top: 10px;
+    margin-left: 3px;
+  }
+
+  .active-number-wrapper .active-number {
+    margin-top: -30px;
+    display: inline-block;
+    font-size: 140px;
+    /*color: #fffaae;*/
+    font-weight: 600;
+    margin-left: 30px;
+  }
+
+  #app {
+    background-image: url("/static/img/lucky_draw_center.jpg");
+    background-repeat: no-repeat;
+    background-position: center 30%;
+    background-size: 160%;
+    display:table-cell;
+    vertical-align:middle;
+    height: 100%;
+    background-color: black;
+    position: absolute;
+    right: 0;
+    left: 0;
+    font-family: Arial;
+  }
+  @media(min-width:480px) {
+    #app {
+      background-image: url("/static/img/lucky_draw_center.jpg");
+      background-size: 100% auto;
+    }
+    .active-number-wrapper {
+      top: 40%;
+    }
+  }
+  @media(min-width:768px) {
+    #app {
+      background-image: url("/static/img/lucky_draw_center.jpg");
+      background-size: 100% auto;
+    }
+    .active-number-wrapper {
+      top: 45%;
+    }
+  }
+  @media(min-width:1080px) {
+    #app {
+      background-image: url("/static/img/lucky_draw_bkgd.jpg");
+    }
+    .active-number-wrapper {
+      top: 38%;
+    }
+  }
+
+  @media(min-width:1280px) {
+    #app {
+      background-image: url("/static/img/lucky_draw_bkgd.jpg");
+      background-position: center;
+    }
+    .active-number-wrapper {
+      top: 50%;
+    }
+  }
+  .drawn-numbers {
+    width: 100%;
+    height: 180px;
+    background-color: transparent;
+  }
+  .drawn-number {
+    font-size: 64px;
+    margin: 5px;
+    background-color: white;
+    border-radius: .4em;
+    color: black;
+    padding: .4em .2em .3em .2em;
+    display: inline-block;
+    line-height: 32px;
+    min-width: 1.6em;
+    text-align: center;
+  }
+
+  #footer-pane {
+    bottom: 0;
+    height: 260px;
+    background-color: transparent;
+    position: absolute;
+    width: 100%;
+  }
+  .button-group {
+    position: absolute;
+    right:0;
+    bottom:0;
+    padding:10px;
+    background-color:#222;
+  }
+  .button-group .btn-group {
+    position: relative;
+  }
+  .button-group .btn-group button.enabled:hover {
+    cursor: pointer;
+  }
+  .button-group .btn-group button {
+    background-color: #333;
+    margin-left: 3px;
+    color: #888;
+    font-size: 24px;
+    border:#444 solid 1px;
+  }
+  .button-group .btn-group button:active {
+    border:#444 solid 1px;
+  }
+  .digit0 {
+    background: url('/static/img/numbers.png') 0 0;
+    width: 125px;
+    height: 173px;
+    display: inline-block;
+  }
+  .digit1 {
+    background: url('/static/img/numbers.png') -125px 0;
+    width: 88px;
+    height: 173px;
+    display: inline-block;
+  }
+  .digit2 {
+    background: url('/static/img/numbers.png') -213px 0;
+    width: 117px;
+    height: 173px;
+    display: inline-block;
+  }
+  .digit3 {
+    background: url('/static/img/numbers.png') -330px 0;
+    width: 121px;
+    height: 173px;
+    display: inline-block;
+  }
+  .digit4 {
+    background: url('/static/img/numbers.png') -451px 0;
+    width: 130px;
+    height: 173px;
+    display: inline-block;
+  }
+  .digit5 {
+    background: url('/static/img/numbers.png') -581px 0;
+    width: 120px;
+    height: 173px;
+    display: inline-block;
+  }
+  .digit6 {
+    background: url('/static/img/numbers.png') -701px 0;
+    width: 149px;
+    height: 173px;
+    display: inline-block;
+  }
+  .digit7 {
+    background: url('/static/img/numbers.png') -850px 0;
+    width: 107px;
+    height: 173px;
+    display: inline-block;
+  }
+  .digit8 {
+    background: url('/static/img/numbers.png') -957px 0;
+    width: 127px;
+    height: 173px;
+    display: inline-block;
+  }
+  .digit9 {
+    background: url('/static/img/numbers.png') -1084px 0;
+    width: 145px;
+    height: 173px;
+    display: inline-block;
+  }
+  /*.digit1 {*/
+    /*background: url('/static/img/numbers.png') -69px 0;*/
+    /*width: 69px;*/
+    /*height: 97px;*/
+    /*display: inline-block;*/
+  /*}*/
+  /*.digit2 {*/
+    /*background: url('/static/img/numbers.png') -138px 0;*/
+    /*width: 69px;*/
+    /*height: 97px;*/
+    /*display: inline-block;*/
+  /*}*/
+  /*.digit3 {*/
+    /*background: url('/static/img/numbers.png') -207px 0;*/
+    /*width: 69px;*/
+    /*height: 97px;*/
+    /*display: inline-block;*/
+  /*}*/
+  /*.digit4 {*/
+    /*background: url('/static/img/numbers.png') -276px 0;*/
+    /*width: 69px;*/
+    /*height: 97px;*/
+    /*display: inline-block;*/
+  /*}*/
+  /*.digit5 {*/
+    /*background: url('/static/img/numbers.png') -345px 0;*/
+    /*width: 69px;*/
+    /*height: 97px;*/
+    /*display: inline-block;*/
+  /*}*/
+  /*.digit6 {*/
+    /*background: url('/static/img/numbers.png') -414px 0;*/
+    /*width: 69px;*/
+    /*height: 97px;*/
+    /*display: inline-block;*/
+  /*}*/
+  /*.digit7 {*/
+    /*background: url('/static/img/numbers.png') -483px 0;*/
+    /*width: 69px;*/
+    /*height: 97px;*/
+    /*display: inline-block;*/
+  /*}*/
+  /*.digit8 {*/
+    /*background: url('/static/img/numbers.png') -552px 0;*/
+    /*width: 69px;*/
+    /*height: 97px;*/
+    /*display: inline-block;*/
+  /*}*/
+  /*.digit9 {*/
+    /*background: url('/static/img/numbers.png') -621px 0;*/
+    /*width: 69px;*/
+    /*height: 97px;*/
+    /*display: inline-block;*/
+  /*}*/
+
+
+</style>
+
+<style lang="scss">
+@import "./assets/custom-bootstrap.scss";
+@import "../node_modules/bootstrap/scss/bootstrap.scss";
+@import "../node_modules/bootstrap-vue/dist/bootstrap-vue.css";
+@import "./assets/scss/style";
+</style>

@@ -1,0 +1,8 @@
+{
+  "total": 100,
+  "duration": 3,
+  "useText": false,
+  "active_number_color": "#fffaae",
+  "drawn_number_bkgd_color": "white",
+  "drawn_number_color": "black"
+}
