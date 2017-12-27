@@ -5,7 +5,7 @@
         <h4>Configuration</h4>
       </div>
     </div>
-    <div class="row" v-for="setting in settings">
+    <div class="row" v-for="(setting,key) in settings">
       <div class="form-group col-sm-6 col-md-4">
         <label for="startNumber">Start Number</label>
         <input type="number" class="form-control" id="startNumber" name="endNumber"

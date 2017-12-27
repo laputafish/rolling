@@ -9,17 +9,17 @@
       <ul class="navbar-nav mr-auto">
       </ul>
       <ul class="navbar-nav ml-auto">
-        <router-link
+        <!-- <router-link
           tag="li"
           :to="'panel'"
           class="nav-item"
           router-link-active="active"
           exact>
           <a class="nav-link">Panel</a>
-        </router-link>
+        </router-link> -->
         <router-link
           tag="li"
-          :to="'settings'"
+          :to="'/cp/settings'"
           class="nav-item"
           router-link-active="active"
           exact>
@@ -27,7 +27,7 @@
         </router-link>
         <router-link
           tag="li"
-          :to="'results'"
+          :to="'/cp/results'"
           class="nav-item"
           router-link-active="active"
           exact>

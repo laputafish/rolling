@@ -55,7 +55,6 @@ export default new Router({
     {
       path: '/cp',
       name: 'ControlPanel',
-      redirect: '/cp/panel',
       component: ControlPanel,
       children: [
         {

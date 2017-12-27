@@ -8,7 +8,7 @@
     </div>
     <div id="footer-pane">
       <div class="drawn-numbers">
-        <div v-for="d in drawn" :style="drawnNumberStyle" class="drawn-number">{{ d }}</div>
+        <div v-for="d in drawnNumbers" :style="drawnNumberStyle" class="drawn-number">{{ d.number }}</div>
       </div>
       <div class="button-group">
         <div class="btn-group" role="group">
@@ -21,12 +21,19 @@
 </template>
 
 <script>
+  import {drawnNumbersRef, settingsRef} from '../firebase'
+  import {getCurrDateTime} from '../helpers/util.js'
+
   export default {
     name: 'home',
+    firebase: {
+      drawnNumbers: drawnNumbersRef,
+      settings: settingsRef
+    },
     methods: {
       reset () {
         let vm = this
-        vm.drawn = []
+        // vm.drawn = []
         vm.resetNumbers()
       },
       startRolling () {
@@ -35,9 +42,13 @@
         if (vm.numbers.length === 0) return
         if (vm.numbers.length === 1) {
           vm.number = vm.numbers[0]
-          vm.parseDigits()
-          vm.drawn.push(vm.number)
+          vm.showNumber()
+          // vm.drawn.push(vm.number)
           vm.numbers.splice(0, 1)
+          drawnNumbersRef.push({
+            number: vm.number,
+            drawn_at: getCurrDateTime()
+          })
           return
         }
         vm.running = true
@@ -52,18 +63,23 @@
           vm.lastIndex = vm.selectedIndex
 
           vm.number = vm.numbers[vm.selectedIndex]
-          vm.parseDigits()
+          vm.showNumber()
           if (!vm.running) {
             clearInterval(vm.runningId)
             vm.runningId = false
-            vm.drawn.push(vm.number)
+            // vm.drawn.push(vm.number)
             vm.numbers.splice(vm.selectedIndex, 1)
+            console.log('number: ', vm.number)
+            drawnNumbersRef.push({
+              number: vm.number,
+              drawn_at: getCurrDateTime()
+            })
           }
         }, 100)
       },
-      resetNumbers () {
+      resetNumbersxxx () {
         let vm = this
-        vm.drawn = []
+        // vm.drawn = []
 
         let dataURL = '/static/config.json'
         vm.$http.get(dataURL).then(function (response) {
@@ -72,13 +88,13 @@
           console.log('error: ', error)
         }).then(function (data) {
           console.log('got config.json')
-          if (data.total) {
-            vm.total = data.total
-            vm.numbers = [vm.total]
-          }
-          if (data.duration) {
-            vm.duration = data.duration
-          }
+          // if (data.total) {
+          //   vm.total = data.total
+          //   vm.numbers = [vm.total]
+          // }
+          // if (data.duration) {
+          //   vm.duration = data.duration
+          // }
           if (data.useText) {
             vm.useText = data.useText
           }
@@ -97,23 +113,64 @@
           if (data.font_weight) {
             vm.drawnNumberStyle.fontWeight = data.font_weight
           }
-          for (var i = 0; i < vm.total; i++) {
-            vm.numbers[i] = i + 1
+          for (var i = vm.startNumber; i <= vm.endNumber; i++) {
+            vm.numbers[i - vm.startNumber] = i
           }
+//          console.log('resetNumbers: total = ' + vm.total)
+          console.log('resetNumbers: vm.numbers.length =' + vm.numbers.length)
           vm.number = 1
-          vm.parseDigits()
+          vm.showNumber()
         })
       },
-      parseDigits () {
+      initNumbers () {
+        let vm = this
+        let total = vm.endNumber - vm.startNumber + 1
+        vm.numbers = [total]
+        for (var i = vm.startNumber; i <= vm.endNumber; i++) {
+          vm.numbers[i - vm.startNumber] = i
+        }
+      },
+      showNumber () {
         let vm = this
         vm.digit0 = vm.number % 10
         vm.digit1 = Math.floor(vm.number / 10) % 10
         vm.digit2 = Math.floor(vm.number / 100)
       }
     },
-    mounted () {
+    mounted: function () {
       let vm = this
-      vm.resetNumbers()
+      console.log('vm: ', vm)
+
+      settingsRef.once('value', () => {
+        if (vm.settings.length > 0) {
+          vm.startNumber = vm.settings[0].startNumber
+          vm.endNumber = vm.settings[0].endNumber
+          vm.duration = vm.settings[0].duration
+        }
+        console.log('settingsRef.once(value): vm.startNumber = ' + vm.startNumber)
+        console.log('settingsRef.once(value): vm.endNumber = ' + vm.endNumber)
+        console.log('settingsRef.once(value): vm.duration = ' + vm.duration)
+        drawnNumbersRef.once('value', () => {
+          vm.initNumbers()
+          console.log('once :: vm.drawnNumbers.length = ' + vm.drawnNumbers.length)
+          console.log('once :: vm.numbers.length = ' + vm.numbers.length)
+          for (var i = 0; i < vm.drawnNumbers.length; i++) {
+            let number = vm.drawnNumbers[i].number
+            for (var j = 0; j < vm.numbers.length; j++) {
+              if (vm.numbers[j] === number) {
+                console.log('remove number: ' + number)
+                vm.numbers.splice(j, 1)
+                break
+              }
+            }
+          }
+          vm.number = 0
+          if (vm.numbers.length > 0) {
+            vm.number = vm.numbers[0]
+          }
+          vm.showNumber()
+        })
+      })
     },
     computed: {
       getDigit0Class () {
@@ -134,10 +191,12 @@
         useText: false,
         runningId: null,
         number: 1,
-        drawn: [],
+        // drawn: [],
         numbers: [],
         running: false,
-        total: 100,
+        // total: 100,
+        startNumber: 1,
+        endNumber: 10,
         lastIndex: -1,
         digit0: 0,
         digit1: 0,
