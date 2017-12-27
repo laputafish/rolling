@@ -122,6 +122,18 @@
           vm.showNumber()
         })
       },
+      updateSettings (settings) {
+        let vm = this
+        if (settings.startNumber) vm.startNumber = settings.startNumber
+        if (settings.endNumber) vm.endNumber = settings.endNumber
+        if (settings.duration) vm.duration = settings.duration
+        if (settings.useText) vm.useText = settings.useText
+        if (settings.active_number_color) vm.activeNumberStyle.color = settings.active_number_color
+        if (settings.drawn_number_bkgd_color) vm.drawnNumberStyle.backgroundColor = settings.drawn_number_bkgd_color
+        if (settings.drawn_number_color) vm.drawnNumberStyle.color = settings.drawn_number_color
+        if (settings.font_family) vm.drawnNumberStyle.fontFamily = settings.font_family
+        if (settings.font_weight) vm.drawnNumberStyle.fontWeight = settings.font_weight
+      },
       initNumbers () {
         let vm = this
         let total = vm.endNumber - vm.startNumber + 1
@@ -143,9 +155,7 @@
 
       settingsRef.once('value', () => {
         if (vm.settings.length > 0) {
-          vm.startNumber = vm.settings[0].startNumber
-          vm.endNumber = vm.settings[0].endNumber
-          vm.duration = vm.settings[0].duration
+          vm.updateSettings(vm.settings[0])
         }
         console.log('settingsRef.once(value): vm.startNumber = ' + vm.startNumber)
         console.log('settingsRef.once(value): vm.endNumber = ' + vm.endNumber)

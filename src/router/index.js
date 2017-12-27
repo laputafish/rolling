@@ -57,11 +57,12 @@ export default new Router({
       name: 'ControlPanel',
       component: ControlPanel,
       children: [
-        {
-          path: 'results',
-          name: 'Results',
-          component: Results
-        },
+        // {
+        //   path: 'results',
+        //
+        //   name: 'Results',
+        //   component: Results
+        // },
         {
           path: 'settings',
           name: 'Settings',
@@ -73,6 +74,11 @@ export default new Router({
           component: Panel
         }
       ]
+    },
+    {
+      path: '/results',
+      name: 'Results',
+      component: Results
     }
   ]
 })
