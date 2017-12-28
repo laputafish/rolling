@@ -440,7 +440,7 @@
     background-color: transparent;
   }
   .drawn-number {
-    font-size: 64px;
+    font-size: 32px;
     margin: 5px;
     background-color: black;
     border-radius: .4em;
@@ -451,10 +451,14 @@
     min-width: 1.6em;
     text-align: center;
   }
-
+  @media(min-width: 480px) {
+    .drawn-number {
+      font-size:64px;
+    }
+  }
   #footer-pane {
     bottom: 0;
-    height: 230px;
+    height: 300px;
     background-color: transparent;
     position: absolute;
     width: 100%;
