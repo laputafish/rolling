@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="row pt-3">
+    <div class="row pt-3 my-3">
       <div class="col-5 ml-auto">
         <router-link
           tag="button"

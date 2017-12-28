@@ -8,9 +8,9 @@
       code="reset"
       icon="fa-recycle">
     </my-header>
-    <div class="container my-5">
+    <div class="container my-5 results-pane">
       <div class="row">
-        <div class="col-sm-12 my-3">
+        <div class="col-sm-12 my-3 text-center">
           <h3>Results</h3>
         </div>
       </div>
@@ -19,7 +19,7 @@
              v-for="(item,index) in drawnNumbers">
           <small style="position:absolute;left:5px;top:0;">{{ index + 1 }}</small>
           <h1 style="display:inline-block;"><span
-            class="drawn-number badge badge-lg badge-primary">{{ item.number }}</span></h1>
+            class="results-drawn-number badge badge-lg badge-primary">{{ item.number }}</span></h1>
         </div>
       </div>
       <div class="row" v-if="false">
@@ -52,14 +52,10 @@
     methods: {
       resetNumbers () {
         let vm = this
-        for (var i = 0; i < vm.drawnNumbers.length; i++) {
-          let key = vm.drawnNumbers[i]['.key']
+        while (vm.drawnNumbers.length > 0) {
+          let key = vm.drawnNumbers[0]['.key']
           db.ref('drawnNumbers/' + key).remove()
         }
-//        drawnNumbersRef.update({})
-//        on('value', (snapshot) => {
-//          snapshot.ref.remove()
-//        })
       },
       processCommand (params) {
         let vm = this
@@ -83,7 +79,7 @@
 </script>
 
 <style>
-  .drawn-number {
+  .results-drawn-number {
     min-width: 60px;
   }
 </style>

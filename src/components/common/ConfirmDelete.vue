@@ -12,8 +12,9 @@
             <p>Are you sure?</p>
             <div class="form-group">
               <label class="control-label">Code</label>
-              <input class="form-control" v-model="inputCode">
+              <input type="password" class="form-control" v-model="inputCode">
             </div>
+            <p class="text-left badge-notes p-2 badge badge-success" v-if="notes">{{ notes }}</p>
           </div>
           <div class="modal-footer">
             <slot name="footer">
@@ -32,7 +33,7 @@
   window.jQuery = $
 
   export default {
-    props: ['msg', 'code'],
+    props: ['msg', 'code', 'notes'],
     methods: {
       show: function () {
 
@@ -103,6 +104,11 @@
 
   .modal-leave-active {
     opacity: 0;
+  }
+
+  .badge-notes {
+    max-width: 100%;
+    white-space: normal;
   }
 
   .modal-enter .modal-container,

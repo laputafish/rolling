@@ -10,6 +10,7 @@ const app = initializeApp({
 })
 
 export const db = app.database()
+export const stationsRef = db.ref('stations')
 export const settingsRef = db.ref('settings')
 export const drawnNumbersRef = db.ref('drawnNumbers')
 export const actionsRef = db.ref('actions')

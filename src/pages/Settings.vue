@@ -4,36 +4,49 @@
       @commandHandler="processCommand"
       command="save"
       commandLabel="Save"
+      code="update"
+      :useCode="true"
+      notes="Effect relfected on frontend only after refresh."
       icon="fa-save">
     </my-header>
-    <vue-toastr ref="toastr"></vue-toastr>
+    <vue-toastr
+      ref="toastr"
+      click-close="true"
+      default-progress-bar="false"></vue-toastr>
     <div class="container my-5">
       <div class="row">
-        <div class="col-sm-12 my-3">
+        <div class="col-sm-12 my-3 text-center">
           <h3>Configuration</h3>
         </div>
       </div>
       <div class="row" v-for="(setting,key) in settings">
-        <div class="form-group col-sm-6 col-md-4">
+        <div class="form-group col-6 col-md-4">
           <label for="startNumber">Start Number</label>
           <input type="number" class="form-control" id="startNumber" name="endNumber"
                  :value="setting.startNumber"
                  @change="saveStartNumber"
                  placeholder="Start number">
         </div>
-        <div class="form-group col-sm-6 col-md-4">
+        <div class="form-group col-6 col-md-4">
           <label for="endNumber">End Number</label>
           <input type="number" class="form-control" id="endNumber" name="endNumber"
                  :value="setting.endNumber"
                  @change="saveEndNumber"
                  placeholder="End number">
         </div>
-        <div class="form-group col-sm-6 col-md-4">
+        <div class="form-group col-6 col-md-4">
           <label for="duration">Draw Time (sec)</label>
           <input type="number" class="form-control" id="duration" name="duration"
                  :value="setting.duration"
                  @change="saveDuration"
                  placeholder="Draw time">
+        </div>
+        <div class="form-group col-6 col-md-4">
+          <label for="digitScale">Digit Scale Radio</label>
+          <input type="number" class="form-control" id="digitScale" name="digitScale"
+                 :value="setting.digitScale"
+                 @change="saveDigitScale"
+                 placeholder="Digit scale ratio">
         </div>
         <div class="form-group col-sm-6 col-md-4">
           <label for="drawnNumberColor">Drawn Number Text Color</label>
@@ -45,25 +58,26 @@
           <label for="drawnNumberBkgdColor">Drawn Number Background Color</label>
           <input type="text" class="form-control" id="drawnNumberBkgdColor" name="drawnNumberBkgdColor"
                  v-model="drawnNumberBkgdColor"
-               placeholder="Drawn number background color">
+                 placeholder="Drawn number background color">
         </div>
-        <div class="form-group col-sm-6 col-md-4">
-        <label for="digitScale">Digit Scale Radio</label>
-        <input type="number" class="form-control" id="digitScale" name="digitScale"
-               :value="setting.digitScale"
-               @change="saveDigitScale"
-               placeholder="Digit scale ratio">
-      </div>
+
+        <div class="form-group col-sm-6 col-md-4 checkbox">
+          <label for="showDrawnNumbers">Show Drawn Numbers on Frontend</label><br/>
+          <bootstrap-toggle
+            class="form-control"
+            v-model="showDrawnNumbers"
+            :options="{ on: 'Yes', off: 'No'}"/>
+        </div>
       </div>
 
-      <div class="form-group row mb-0" v-for="n in 10">
-        <label class="col-2 col-form-label pt-0 pr-0">
-          <h2><span class="my-auto badge badge-primary number-label">{{ n - 0 }}</span></h2>
-        </label>
-        <div class="col-10 input-wrapper">
-          <input class="form-control" v-model="numberWidths[n-1]"/>
-        </div>
-      </div>
+      <!--<div class="form-group row mb-0" v-for="n in 10">-->
+        <!--<label class="col-2 col-form-label pt-0 pr-0">-->
+          <!--<h2><span class="my-auto badge badge-primary number-label">{{ n - 0 }}</span></h2>-->
+        <!--</label>-->
+        <!--<div class="col-10 input-wrapper">-->
+          <!--<input class="form-control" v-model="numberWidths[n-1]"/>-->
+        <!--</div>-->
+      <!--</div>-->
     </div>
   </div>
 
@@ -72,10 +86,12 @@
 <script>
   import Header from './results/header'
   import {db, settingsRef} from '../firebase'
+  import BootstrapToggle from 'vue-bootstrap-toggle'
 
   export default {
     components: {
-      myHeader: Header
+      myHeader: Header,
+      BootstrapToggle
     },
     data () {
       return {
@@ -85,6 +101,7 @@
         digitScale: 0.8,
         drawnNumberColor: 'white',
         drawnNumberBkgdColor: 'black',
+        showDrawnNumbers: false,
         numberWidths: [10]
       }
     },
@@ -101,6 +118,7 @@
           if (vm.settings[key].digitScale) vm.digitScale = parseFloat(vm.settings[key].digitScale)
           if (vm.settings[key].drawnNumberColor) vm.drawnNumberColor = vm.settings[key].drawnNumberColor
           if (vm.settings[key].drawnNumberBkgdColor) vm.drawnNumberBkgdColor = vm.settings[key].drawnNumberBkgdColor
+          if (vm.settings[key].showDrawnNumbers) vm.showDrawnNumbers = vm.settings[key].showDrawnNumbers
           break
         }
         if (vm.settings[key].numberWidths) {
@@ -140,16 +158,15 @@
       save () {
         let vm = this
         console.log('save :: vm.numberWidths: ', vm.numberWidths)
-        settingsRef.update({
-          values: {
-            startNumber: parseInt(vm.startNumber),
-            endNumber: parseInt(vm.endNumber),
-            duration: parseInt(vm.duration),
-            digitScale: parseFloat(vm.digitScale),
-            drawnNumberColor: vm.drawnNumberColor,
-            drawnNumberBkgdColor: vm.drawnNumberBkgdColor,
-            numberWidths: vm.numberWidths.join(',')
-          }
+        settingsRef.child('values').set({
+          startNumber: parseInt(vm.startNumber),
+          endNumber: parseInt(vm.endNumber),
+          duration: parseInt(vm.duration),
+          digitScale: parseFloat(vm.digitScale),
+          drawnNumberColor: vm.drawnNumberColor,
+          drawnNumberBkgdColor: vm.drawnNumberBkgdColor,
+          showDrawnNumbers: vm.showDrawnNumbers,
+          numberWidths: vm.numberWidths.join(',')
         })
         vm.$toastr.s('Saved.')
       }
@@ -158,9 +175,10 @@
 </script>
 
 <style>
-.number-label {
-  min-width: 50px;
-}
+  .number-label {
+    min-width: 50px;
+  }
+
   .input-wrapper {
     padding-top: 3px;
   }

@@ -7,7 +7,7 @@
       <div class="active-number digit" :style="digit0Style" :class="'digit'+digit0" v-if="!useText">&nbsp;</div>
     </div>
     <div id="footer-pane">
-      <div class="drawn-numbers">
+      <div class="drawn-numbers" v-if="showDrawnNumbers">
         <div v-for="d in drawnNumbers" :style="drawnNumberStyle" class="drawn-number">{{ d.number }}</div>
       </div>
       <div class="button-group">
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-  import {drawnNumbersRef, settingsRef, actionsRef} from '../firebase'
+  import {stationsRef, drawnNumbersRef, settingsRef, actionsRef} from '../firebase'
   import {getCurrDateTime} from '../helpers/util.js'
 
   export default {
@@ -28,17 +28,10 @@
     firebase: {
       drawnNumbers: drawnNumbersRef,
       settings: settingsRef,
-      actions: actionsRef
+      actions: actionsRef,
+      stations: stationsRef
     },
     methods: {
-      watch: {
-        actionsRef: {
-          deep: true,
-          handler: () => {
-            alert('actionsRef')
-          }
-        }
-      },
       reset () {
         let vm = this
         // vm.drawn = []
@@ -46,42 +39,54 @@
       },
       adjustNumbers () {
         let vm = this
-        for (var i = 0; i < vm.drawnNumbers.length; i++) {
-          let number = vm.drawnNumbers[i].number
-          for (var j = 0; j < vm.numbers.length; j++) {
-            if (vm.numbers[j] === number) {
-              console.log('remove number: ' + number)
-              vm.numbers.splice(j, 1)
-              break
+        if (vm.drawnNumbers) {
+          for (var i = 0; i < vm.drawnNumbers.length; i++) {
+            let number = vm.drawnNumbers[i].number
+            for (var j = 0; j < vm.numbers.length; j++) {
+              if (vm.numbers[j] === number) {
+                console.log('remove number: ' + number)
+                vm.numbers.splice(j, 1)
+                break
+              }
             }
           }
         }
       },
       startRolling () {
         let vm = this
-        drawnNumbersRef.once('value', () => {
-          vm.initNumbers()
-          vm.adjustNumbers()
-          vm.doStartRolling()
-        })
+        if (!vm.running) {
+          vm.running = true
+          drawnNumbersRef.once('value', () => {
+            console.log('drawnNumbersRef once(value)')
+            vm.initNumbers()
+            vm.adjustNumbers()
+            vm.doStartRolling()
+          })
+        }
       },
       doStartRolling () {
         let vm = this
 
-        if (vm.numbers.length === 0) return
+        if (vm.numbers.length === 0) {
+          vm.running = false
+          return
+        }
+
         if (vm.numbers.length === 1) {
           vm.number = vm.numbers[0]
           vm.showNumber()
           // vm.drawn.push(vm.number)
           vm.numbers.splice(0, 1)
+          console.log('lenght==1 => push number (' + vm.number + ') to drawnNumbers')
           drawnNumbersRef.push({
             number: vm.number,
             drawn_at: getCurrDateTime()
           })
+          vm.running = false
           return
         }
-        vm.running = true
-        setTimeout(() => {
+        let timeoutId = setTimeout(() => {
+          clearTimeout(timeoutId)
           vm.running = false
           console.log('timeout')
         }, vm.duration * 1000)
@@ -91,15 +96,15 @@
             vm.selectedIndex = Math.floor(Math.random() * vm.numbers.length)
           } while (vm.selectedIndex === vm.lastIndex && vm.numbers.length > 1)
           vm.lastIndex = vm.selectedIndex
-          console.log('rolling :: vm.selectedIndex = ' + vm.selectedIndex)
           vm.number = vm.numbers[vm.selectedIndex]
+          console.log('rolling :: vm.selectedIndex = ' + vm.selectedIndex + ' (' + vm.number + ')')
           vm.showNumber()
           if (!vm.running) {
             clearInterval(vm.runningId)
             vm.runningId = false
             // vm.drawn.push(vm.number)
             vm.numbers.splice(vm.selectedIndex, 1)
-            console.log('number: ', vm.number)
+            console.log('!running => push number (' + vm.number + ') to drawnNumbers')
             drawnNumbersRef.push({
               number: vm.number,
               drawn_at: getCurrDateTime()
@@ -164,6 +169,7 @@
         if (settings.drawnNumberColor) vm.drawnNumberStyle.color = settings.drawnNumberColor
         if (settings.font_family) vm.drawnNumberStyle.fontFamily = settings.font_family
         if (settings.font_weight) vm.drawnNumberStyle.fontWeight = settings.font_weight
+        if (settings.showDrawnNumbers) vm.showDrawnNumbers = settings.showDrawnNumbers
       },
       initNumbers () {
         let vm = this
@@ -183,6 +189,37 @@
     mounted: function () {
       let vm = this
       console.log('vm: ', vm)
+
+      // register stations
+      let ref = stationsRef.push({
+        station: getCurrDateTime()
+      })
+      vm.stationKey = ref.key
+
+      stationsRef.once('value', (snapshot) => {
+        let value = snapshot.val()
+        for (var key in value) {
+          if (key !== vm.stationKey) {
+            stationsRef.child(key).remove()
+          }
+        }
+      })
+
+//      stationsRef.once('value', () => {
+//        let ref = stationsRef.push({
+//          station: getCurrDateTime()
+//        })
+//        vm.stationKey = ref.key
+//        console.log('stationKey = ' + vm.stationKey)
+//        console.log('stationsRef.length = ' + stationsRef.length)
+//        for (var i = 0; i < vm.stations.length; i++) {
+//          let key = vm.stations[i]['.key']
+//          if (key !== vm.stationKey) {
+//            console.log('remove station #' + key)
+//            stationsRef.child(key).remove()
+//          }
+//        }
+//      })
 
       settingsRef.once('value', () => {
         if (vm.settings.length > 0) {
@@ -207,12 +244,29 @@
 
 //      actionsRef.child('lottery').on('value', (snapshot) => {
 //        let lotteryValue = snapshot.val()
-//        if (lotteryValue.draw) {
-//          lotteryValue.draw = null
-//          actionsRef.child('lottery').update(lotteryValue)
-//          // vm.startRolling()
+//        if (lotteryValue) {
+//          if (lotteryValue.draw) {
+//            lotteryValue.draw = null
+//            actionsRef.child('lottery').update(lotteryValue)
+//            console.log('actionsRef :: value :: updated')
+//            vm.startRolling()
+//          }
 //        }
 //      })
+
+      actionsRef.child('lottery').on('child_added', (snapshot) => {
+        console.log('actionsRef :: child_added')
+        let lotteryValue = snapshot.val()
+        console.log('child_added :: lotteryValue: ', lotteryValue)
+        console.log('stationKey = ', vm.stationKey)
+        if (lotteryValue === vm.stationKey) {
+          actionsRef.child('lottery').update({
+            draw: null
+          })
+          console.log('actionsRef :: value :: updated')
+          vm.startRolling()
+        }
+      })
 
 //      actionsRef.child('lottery').on('child_added', (snapshot) => {
 //        let value = snapshot.val()
@@ -268,6 +322,7 @@
     },
     data () {
       return {
+        stationKey: '',
         useText: false,
         runningId: null,
         number: 1,
@@ -284,6 +339,7 @@
         duration: 3,
         activeNumberStyle: {color: '#fffaae'},
         drawnNumberStyle: {color: 'white', backgroundColor: 'black'},
+        showDrawnNumbers: false,
         digitScale: 0.8,
         digitWidths: [
           125, // 0
@@ -398,11 +454,18 @@
 
   #footer-pane {
     bottom: 0;
-    height: 260px;
+    height: 230px;
     background-color: transparent;
     position: absolute;
     width: 100%;
   }
+
+  @media( min-width: 480px ) {
+    #footer-pane {
+      height: 260px;
+    }
+  }
+
   .button-group {
     position: absolute;
     right:0;

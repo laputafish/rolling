@@ -4,6 +4,7 @@
       v-if="showModal"
       ref="modal"
       :code="code"
+      :notes="notes"
       @ok="confirm"
       @close="showModal = false">
       <div slot="header">
@@ -18,10 +19,10 @@
         </router-link>
       </li>
     </ul>
-    <a class="navbar-brand mx-auto" href="#">Lottery Draw 2018</a>
+    <a class="navbar-brand mx-auto" href="#">Lottery 2018</a>
     <ul class="nav navbar-nav ml-auto">
       <li class="nav-item">
-        <button @click="onButtonClick" class="btn btn-primary " type="button"
+        <button v-if="command" @click="onButtonClick" class="btn btn-primary " type="button"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <i class="fa " :class="icon"></i>&nbsp;{{ commandLabel }}
         </button>
@@ -70,6 +71,10 @@
         default: false
       },
       code: {
+        type: String,
+        default: ''
+      },
+      notes: {
         type: String,
         default: ''
       }

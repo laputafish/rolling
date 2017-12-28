@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">Lottery Draw 2018</a>
+    <a class="navbar-brand" href="#">Lottery 2018</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -9,17 +9,17 @@
       <ul class="navbar-nav mr-auto">
       </ul>
       <ul class="navbar-nav ml-auto">
-        <!-- <router-link
+        <router-link
           tag="li"
-          :to="'panel'"
+          :to="'/panel'"
           class="nav-item"
           router-link-active="active"
           exact>
-          <a class="nav-link">Panel</a>
-        </router-link> -->
+          <a class="nav-link">Control Panel</a>
+        </router-link>
         <router-link
           tag="li"
-          :to="'/cp/settings'"
+          :to="'/settings'"
           class="nav-item"
           router-link-active="active"
           exact>

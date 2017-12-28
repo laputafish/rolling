@@ -27,13 +27,13 @@ Vue.component('vue-toastr', Toastr)
 Vue.use(Toastr)
 Vue.use(BootstrapVue)
 Vue.use(VueFire)
-Vue.use(require('vue-pusher'), {
-  api_key: '4927417ec00dc0b32868',
-  options: {
-    cluster: 'ap1',
-    encrypted: true
-  }
-})
+// Vue.use(require('vue-pusher'), {
+//   api_key: '4927417ec00dc0b32868',
+//   options: {
+//     cluster: 'ap1',
+//     encrypted: true
+//   }
+// })
 Vue.use(VueResource)
 Vue.config.productionTip = false
 
