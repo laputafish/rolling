@@ -1,8 +1,8 @@
 <template>
   <div id="controlPanel">
     <my-navbar></my-navbar>
-    <router-view></router-view>
-
+    <router-view></router-link>
+    </router-view>
   </div>
 </template>
 

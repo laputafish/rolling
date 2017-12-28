@@ -6,6 +6,7 @@ import VueFire from 'vuefire'
 import BootstrapVue from 'bootstrap-vue/dist/bootstrap-vue.esm'
 import App from './App'
 import router from './router'
+import Toastr from 'vue-toastr'
 import VueResource from 'vue-resource'
 // import jQuery from 'jquery'
 //
@@ -16,9 +17,14 @@ import 'simple-line-icons/scss/simple-line-icons.scss'
 
 import 'bootstrap'
 
+import('vue-toastr/src/vue-toastr.scss')
+
 // window.jQuery = jQuery
 // window.$ = jQuery
 
+Vue.component('vue-toastr', Toastr)
+
+Vue.use(Toastr)
 Vue.use(BootstrapVue)
 Vue.use(VueFire)
 Vue.use(require('vue-pusher'), {
@@ -30,6 +36,11 @@ Vue.use(require('vue-pusher'), {
 })
 Vue.use(VueResource)
 Vue.config.productionTip = false
+
+global.jQuery = require('jquery')
+let $ = global.jQuery
+window.$ = $
+window.Vue = Vue
 
 /* eslint-disable no-new */
 new Vue({

@@ -6,6 +6,7 @@ import Blank from '@/pages/blank'
 // import Login from '@/pages/login'
 // import Register from '@/pages/register'
 import ControlPanel from '@/pages/ControlPanel'
+import ControlPanelMain from '@/pages/ControlPanelMain'
 import Results from '@/pages/Results'
 import Settings from '@/pages/Settings'
 import Panel from '@/pages/Panel'
@@ -55,6 +56,7 @@ export default new Router({
     {
       path: '/cp',
       name: 'ControlPanel',
+      redirect: '/cp/main',
       component: ControlPanel,
       children: [
         // {
@@ -64,14 +66,9 @@ export default new Router({
         //   component: Results
         // },
         {
-          path: 'settings',
-          name: 'Settings',
-          component: Settings
-        },
-        {
-          path: 'panel',
-          name: 'Panel',
-          component: Panel
+          path: 'main',
+          name: 'ControlPanelMain',
+          component: ControlPanelMain
         }
       ]
     },
@@ -79,6 +76,16 @@ export default new Router({
       path: '/results',
       name: 'Results',
       component: Results
+    },
+    {
+      path: '/settings',
+      name: 'Settings',
+      component: Settings
+    },
+    {
+      path: '/panel',
+      name: 'Panel',
+      component: Panel
     }
   ]
 })

@@ -2,9 +2,9 @@
   <div id="home">
     <div class="active-number-wrapper">
       <div class="active-number" :style="activeNumberStyle" v-if="useText">{{ number }}</div>
-      <div class="active-number digit" :class="'digit'+digit2" v-if="!useText && digit2!=0"></div>
-      <div class="active-number digit" :class="'digit'+digit1" v-if="!useText && digit1!=0"></div>
-      <div class="active-number digit" :class="'digit'+digit0" v-if="!useText"></div>
+      <div class="active-number digit" :style="digit2Style" :class="'digit'+digit2" v-if="!useText && digit2!=0">&nbsp;</div>
+      <div class="active-number digit" :style="digit1Style" :class="'digit'+digit1" v-if="!useText && digit1!=0">&nbsp;</div>
+      <div class="active-number digit" :style="digit0Style" :class="'digit'+digit0" v-if="!useText">&nbsp;</div>
     </div>
     <div id="footer-pane">
       <div class="drawn-numbers">
@@ -13,7 +13,6 @@
       <div class="button-group">
         <div class="btn-group" role="group">
           <button :disabled="(running || numbers.length==0)" :class="{enabled:(!running && numbers.length>0)}" class="btn btn-default" @click="startRolling">Start</button>
-          <button :disabled="running" :class="{enabled:!running}" class="btn btn-default" @click="reset">Reset</button>
         </div>
       </div>
     </div>
@@ -21,22 +20,52 @@
 </template>
 
 <script>
-  import {drawnNumbersRef, settingsRef} from '../firebase'
+  import {drawnNumbersRef, settingsRef, actionsRef} from '../firebase'
   import {getCurrDateTime} from '../helpers/util.js'
 
   export default {
     name: 'home',
     firebase: {
       drawnNumbers: drawnNumbersRef,
-      settings: settingsRef
+      settings: settingsRef,
+      actions: actionsRef
     },
     methods: {
+      watch: {
+        actionsRef: {
+          deep: true,
+          handler: () => {
+            alert('actionsRef')
+          }
+        }
+      },
       reset () {
         let vm = this
         // vm.drawn = []
         vm.resetNumbers()
       },
+      adjustNumbers () {
+        let vm = this
+        for (var i = 0; i < vm.drawnNumbers.length; i++) {
+          let number = vm.drawnNumbers[i].number
+          for (var j = 0; j < vm.numbers.length; j++) {
+            if (vm.numbers[j] === number) {
+              console.log('remove number: ' + number)
+              vm.numbers.splice(j, 1)
+              break
+            }
+          }
+        }
+      },
       startRolling () {
+        let vm = this
+        drawnNumbersRef.once('value', () => {
+          vm.initNumbers()
+          vm.adjustNumbers()
+          vm.doStartRolling()
+        })
+      },
+      doStartRolling () {
         let vm = this
 
         if (vm.numbers.length === 0) return
@@ -54,6 +83,7 @@
         vm.running = true
         setTimeout(() => {
           vm.running = false
+          console.log('timeout')
         }, vm.duration * 1000)
 
         vm.runningId = setInterval(() => {
@@ -61,7 +91,7 @@
             vm.selectedIndex = Math.floor(Math.random() * vm.numbers.length)
           } while (vm.selectedIndex === vm.lastIndex && vm.numbers.length > 1)
           vm.lastIndex = vm.selectedIndex
-
+          console.log('rolling :: vm.selectedIndex = ' + vm.selectedIndex)
           vm.number = vm.numbers[vm.selectedIndex]
           vm.showNumber()
           if (!vm.running) {
@@ -127,10 +157,11 @@
         if (settings.startNumber) vm.startNumber = settings.startNumber
         if (settings.endNumber) vm.endNumber = settings.endNumber
         if (settings.duration) vm.duration = settings.duration
+        if (settings.digitScale) vm.digitScale = settings.digitScale
         if (settings.useText) vm.useText = settings.useText
         if (settings.active_number_color) vm.activeNumberStyle.color = settings.active_number_color
-        if (settings.drawn_number_bkgd_color) vm.drawnNumberStyle.backgroundColor = settings.drawn_number_bkgd_color
-        if (settings.drawn_number_color) vm.drawnNumberStyle.color = settings.drawn_number_color
+        if (settings.drawnNumberBkgdColor) vm.drawnNumberStyle.backgroundColor = settings.drawnNumberBkgdColor
+        if (settings.drawnNumberColor) vm.drawnNumberStyle.color = settings.drawnNumberColor
         if (settings.font_family) vm.drawnNumberStyle.fontFamily = settings.font_family
         if (settings.font_weight) vm.drawnNumberStyle.fontWeight = settings.font_weight
       },
@@ -164,23 +195,41 @@
           vm.initNumbers()
           console.log('once :: vm.drawnNumbers.length = ' + vm.drawnNumbers.length)
           console.log('once :: vm.numbers.length = ' + vm.numbers.length)
-          for (var i = 0; i < vm.drawnNumbers.length; i++) {
-            let number = vm.drawnNumbers[i].number
-            for (var j = 0; j < vm.numbers.length; j++) {
-              if (vm.numbers[j] === number) {
-                console.log('remove number: ' + number)
-                vm.numbers.splice(j, 1)
-                break
-              }
-            }
-          }
-          vm.number = 0
+          vm.adjustNumbers()
+          console.log('after splice :: vm.numbers.length = ' + vm.numbers.length)
+          vm.number = vm.endNumber
           if (vm.numbers.length > 0) {
             vm.number = vm.numbers[0]
           }
           vm.showNumber()
         })
       })
+
+//      actionsRef.child('lottery').on('value', (snapshot) => {
+//        let lotteryValue = snapshot.val()
+//        if (lotteryValue.draw) {
+//          lotteryValue.draw = null
+//          actionsRef.child('lottery').update(lotteryValue)
+//          // vm.startRolling()
+//        }
+//      })
+
+//      actionsRef.child('lottery').on('child_added', (snapshot) => {
+//        let value = snapshot.val()
+//        console.log('snapshot: ', snapshot)
+//        console.log('child_added  value:', value)
+//        console.log('actions.length =' + vm.actions.length)
+//        if (vm.actions.length > 0) {
+//          console.log('vm.actions.length > 0')
+//          if (vm.actions[0].draw) {
+//            console.log('vm.actions[0].draw')
+//            if (actionsRef.child('lottery')) {
+//              // actionsRef.child('lottery').child('draw').remove()
+//              console.log('remove draw')
+//            }
+//          }
+//        }
+//      })
     },
     computed: {
       getDigit0Class () {
@@ -194,6 +243,27 @@
       getDigit2Class () {
         let vm = this
         return vm.number >= 100 ? 'digit' + String(vm.number).substring(-2, 1) : ''
+      },
+      digit0Style () {
+        let vm = this
+        let digitWidth = vm.digitWidths[vm.digit0] * vm.digitScale
+        return {
+          width: digitWidth + 'px'
+        }
+      },
+      digit1Style () {
+        let vm = this
+        let digitWidth = vm.digitWidths[vm.digit1] * vm.digitScale
+        return {
+          width: digitWidth + 'px'
+        }
+      },
+      digit2Style () {
+        let vm = this
+        let digitWidth = vm.digitWidths[vm.digit2] * vm.digitScale
+        return {
+          width: digitWidth + 'px'
+        }
       }
     },
     data () {
@@ -213,11 +283,28 @@
         digit2: 0,
         duration: 3,
         activeNumberStyle: {color: '#fffaae'},
-        drawnNumberStyle: {color: 'black', backgroundColor: 'white'}
+        drawnNumberStyle: {color: 'white', backgroundColor: 'black'},
+        digitScale: 0.8,
+        digitWidths: [
+          125, // 0
+          88, // 1
+          117, // 2
+          121, // 3
+          130, // 4
+          120, // 5
+          149, // 6
+          107, // 7
+          127, // 8
+          145
+        ]
       }
     }
   }
 </script>
+
+<style lang="scss">
+  @import "../assets/scss/digits.scss";
+</style>
 
 <style>
   .active-number-wrapper {
@@ -339,66 +426,7 @@
   .button-group .btn-group button:active {
     border:#444 solid 1px;
   }
-  .digit0 {
-    background: url('/static/img/numbers.png') 0 0;
-    width: 125px;
-    height: 173px;
-    display: inline-block;
-  }
-  .digit1 {
-    background: url('/static/img/numbers.png') -125px 0;
-    width: 88px;
-    height: 173px;
-    display: inline-block;
-  }
-  .digit2 {
-    background: url('/static/img/numbers.png') -213px 0;
-    width: 117px;
-    height: 173px;
-    display: inline-block;
-  }
-  .digit3 {
-    background: url('/static/img/numbers.png') -330px 0;
-    width: 121px;
-    height: 173px;
-    display: inline-block;
-  }
-  .digit4 {
-    background: url('/static/img/numbers.png') -451px 0;
-    width: 130px;
-    height: 173px;
-    display: inline-block;
-  }
-  .digit5 {
-    background: url('/static/img/numbers.png') -581px 0;
-    width: 120px;
-    height: 173px;
-    display: inline-block;
-  }
-  .digit6 {
-    background: url('/static/img/numbers.png') -701px 0;
-    width: 149px;
-    height: 173px;
-    display: inline-block;
-  }
-  .digit7 {
-    background: url('/static/img/numbers.png') -850px 0;
-    width: 107px;
-    height: 173px;
-    display: inline-block;
-  }
-  .digit8 {
-    background: url('/static/img/numbers.png') -957px 0;
-    width: 127px;
-    height: 173px;
-    display: inline-block;
-  }
-  .digit9 {
-    background: url('/static/img/numbers.png') -1084px 0;
-    width: 145px;
-    height: 173px;
-    display: inline-block;
-  }
+
   /*.digit1 {*/
   /*background: url('/static/img/numbers.png') -69px 0;*/
   /*width: 69px;*/

@@ -1,29 +1,39 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-12">
-        <button type="button" @click="draw" class="py-5 btn btn-primary btn-large btn-block">
-          Draw
-        </button>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-12">
-        <div class="progress">
-          <div class="progress-bar bg-warning"
-               :style="progressStyle"
-               role="progressbar"
-               :aria-valuenow="value"
-               :aria-valuemin="min"
-               :aria-valuemax="max"></div>
+  <div>
+    <my-header
+      @commandHandler="processCommand"
+      command="reset"
+      commandLabel="Reset"
+      :useCode="true"
+      code="reset"
+      icon="fa-recycle">
+    </my-header>
+    <div class="container" style="margin-top: 70px;">
+      <div class="row">
+        <div class="col-sm-12">
+          <button type="button" @click="draw" class="py-5 btn btn-primary btn-large btn-block">
+            Draw
+          </button>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-12">
-        <ul class="list-group">
-          <li class="list-group-item" v-for="number in drawnNumbers">{{ number }}</li>
-        </ul>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="progress">
+            <div class="progress-bar bg-warning"
+                 :style="progressStyle"
+                 role="progressbar"
+                 :aria-valuenow="value"
+                 :aria-valuemin="min"
+                 :aria-valuemax="max"></div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="list-group">
+            <li class="list-group-item" v-for="number in drawnNumbers">{{ number }}</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -31,9 +41,13 @@
 
 <script>
   import {db, settingsRef, actionsRef} from '../firebase'
+  import Header from './results/header'
 //  let Pusher = require('pusher-js')
 
   export default {
+    components: {
+      myHeader: Header
+    },
     data () {
       return {
         settings: {
@@ -63,17 +77,13 @@
       })
     },
     methods: {
+      processCommand () {
+
+      },
       draw () {
-        let vm = this
-        vm.value = 0
-//        Pusher.trigger('lottery', 'draw', {duration: 3})
-        let intervalId = setInterval(() => {
-          vm.value++
-          if (vm.value >= vm.max) {
-            clearInterval(intervalId)
-          }
-        }, 100)
-        // send push
+        actionsRef.push({
+          draw: 1
+        })
       }
     },
     watch: {
@@ -81,7 +91,6 @@
         deep: true,
         handler (newArray) {
           console.log('actionsRef :: value: ', newArray)
-          alert('actions')
         }
       }
     },
@@ -97,7 +106,6 @@
     },
     ready: () => {
       this.$watch('actions', function () {
-        alert('actions')
         console.log('actions')
       }, {deep: true})
     }
