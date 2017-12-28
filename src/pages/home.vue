@@ -234,10 +234,11 @@
           console.log('once :: vm.numbers.length = ' + vm.numbers.length)
           vm.adjustNumbers()
           console.log('after splice :: vm.numbers.length = ' + vm.numbers.length)
-          vm.number = vm.endNumber
-          if (vm.numbers.length > 0) {
-            vm.number = vm.numbers[0]
-          }
+          vm.number = 0
+          // vm.number = vm.endNumber
+          // if (vm.numbers.length > 0) {
+          //   vm.number = vm.numbers[0]
+          // }
           vm.showNumber()
         })
       })

@@ -11,7 +11,12 @@
     <div class="container" style="margin-top: 70px;">
       <div class="row">
         <div class="col-sm-12">
-          <button :disabled="processing" type="button" @click="draw" class="py-5 btn btn-primary btn-large btn-block">
+          <button :disabled="processing"
+            @mousedown="mousedown"
+            @mouseup="mouseup"
+            type="button"
+            :class="{'btn-success':safePeriod, 'btn-primary':!safePeriod}"
+            class="py-5 btn btn-large btn-block">
             <h1>Draw</h1>
           </button>
         </div>
@@ -26,6 +31,15 @@
                  :aria-valuemin="min"
                  :aria-valuemax="max"></div>
           </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 text-center">
+          <h2>
+            <span class="badge badge-secondary p-2">
+            Touch button for 2 to 4 seconds to start.
+          </span>
+          </h2>
         </div>
       </div>
       <div class="row">
@@ -60,7 +74,10 @@
         actions: [],
         dbSettings: [],
         processing: false,
-        processingIntervalId: ''
+        processingIntervalId: '',
+        mouseIsDown: false,
+        safePeriod: false,
+        mouseDownTimerId: null
       }
     },
     firebase: {
@@ -80,8 +97,35 @@
       })
     },
     methods: {
-      processCommand () {
+      mouseup () {
+        let vm = this
+        let startDrawing = vm.safePeriod
+        if (vm.mouseDownTimerId) {
+          clearTimeout(vm.mouseDownTimerId)
+        }
+        vm.mouseDownTimerId = null
+        vm.mouseIsDown = false
+        vm.safePeriod = false
 
+        if (startDrawing) {
+          console.log('start drawing')
+          vm.draw()
+        }
+      },
+      mousedown () {
+        this.mouseIsDown = true
+        this.mouseDownStartTime = new Date()
+        this.startMouseDownTimer()
+      },
+      startMouseDownTimer () {
+        let vm = this
+        vm.mouseDownTimerId = setInterval(() => {
+          let duration = (new Date()) - this.mouseDownStartTime
+          vm.safePeriod = duration > 2000 && duration < 4000
+        }, 100)
+      },
+      processCommand () {
+        // keep for dummy
       },
       draw () {
         let vm = this
@@ -117,6 +161,7 @@
                   clearInterval(processingIntervalId)
                   vm.processingIntervalId = ''
                   vm.processing = false
+                  vm.value = 0
                 }
               }, 100)
             }
@@ -153,4 +198,3 @@
 <style>
 
 </style>
-
