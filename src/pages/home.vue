@@ -424,7 +424,7 @@
   }
 
   #home {
-    background-image: url("/static/img/bkgd.gif");
+    background-image: url("/static/img/bkgd.jpg");
     /*background-image: url("/static/img/lucky_draw_center.jpg");*/
     background-repeat: no-repeat;
     background-position: center 30%;
@@ -459,7 +459,7 @@
   @media(min-width:1080px) {
     #home {
       /*      background-image: url("/static/img/lucky_draw_bkgd.gif");*/
-      background-image: url("/static/img/bkgd.gif");
+      /*background-image: url("/static/img/bkgd.gif");*/
       background-size: cover;
       background-position: center top;
       background-repeat: no-repeat;

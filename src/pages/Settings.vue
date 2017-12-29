@@ -125,11 +125,12 @@
           vm.startNumber = parseInt(vm.settings[key].startNumber)
           vm.endNumber = parseInt(vm.settings[key].endNumber)
           vm.duration = parseInt(vm.settings[key].duration)
-          if (typeof vm.settings[key].digitScale === 'undefined') vm.digitScale = parseFloat(vm.settings[key].digitScale)
-          if (typeof vm.settings[key].drawnNumberColor === 'undefined') vm.drawnNumberColor = vm.settings[key].drawnNumberColor
-          if (typeof vm.settings[key].drawnNumberBkgdColor === 'undefined') vm.drawnNumberBkgdColor = vm.settings[key].drawnNumberBkgdColor
-          if (typeof vm.settings[key].showDrawnNumbers === 'undefined') vm.showDrawnNumbers = vm.settings[key].showDrawnNumbers
-          if (typeof vm.settings[key].showButtons === 'undefined') vm.showButtons = vm.settings[key].showButtons
+
+          if (typeof vm.settings[key].digitScale !== 'undefined') vm.digitScale = parseFloat(vm.settings[key].digitScale)
+          if (typeof vm.settings[key].drawnNumberColor !== 'undefined') vm.drawnNumberColor = vm.settings[key].drawnNumberColor
+          if (typeof vm.settings[key].drawnNumberBkgdColor !== 'undefined') vm.drawnNumberBkgdColor = vm.settings[key].drawnNumberBkgdColor
+          if (typeof vm.settings[key].showDrawnNumbers !== 'undefined') vm.showDrawnNumbers = vm.settings[key].showDrawnNumbers
+          if (typeof vm.settings[key].showButtons !== 'undefined') vm.showButtons = vm.settings[key].showButtons
           break
         }
         if (vm.settings[key].numberWidths) {
