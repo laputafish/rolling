@@ -138,6 +138,9 @@
   body {
     margin: 0;
   }
+  .content-pane {
+    margin-top:70px;
+  }
 </style>
 
 <style lang="scss">

@@ -1,21 +1,19 @@
 <template>
-  <div>
-    <my-header
-      @commandHandler="processCommand"
-      command=""
-      commandLabel="Reset"
-      :useCode="true"
-      code="reset"
-      icon="fa-recycle">
-    </my-header>
-    <div class="container" style="margin-top: 70px;">
+  <div
+    @mouseup="screenMouseUp"
+    @touchend="screenMouseUp">
+    <my-navbar></my-navbar>
+    <div class="content-pane container">
       <div class="row">
         <div class="col-sm-12">
           <button :disabled="processing"
             @mousedown="mousedown"
+            @touchstart="mousedown"
             @mouseup="mouseup"
+            @touchend="mouseup"
+            @mouseleave="mouseleave"
             type="button"
-            :class="{'btn-success':safePeriod, 'btn-primary':!safePeriod}"
+            :class="drawButtonClass"
             class="py-5 btn btn-large btn-block">
             <h1>Draw</h1>
           </button>
@@ -24,7 +22,8 @@
       <div class="row">
         <div class="col-sm-12">
           <div class="progress">
-            <div class="progress-bar bg-warning"
+            <div class="progress-bar bg-warning process-indicator"
+                 :class="progressbarClass"
                  :style="progressStyle"
                  role="progressbar"
                  :aria-valuenow="value"
@@ -35,11 +34,11 @@
       </div>
       <div class="row">
         <div class="col-12 text-center">
-          <h2>
-            <span class="badge badge-secondary p-2">
-            Touch button for 2 to 4 seconds to start.
+          <h4 class="mt-2">
+            <span class="panel-remark badge badge-secondary p-2">
+            Touch button for {{ offsetTimeOn }} to {{ offsetTimeOff }} seconds to start.
           </span>
-          </h2>
+          </h4>
         </div>
       </div>
       <div class="row">
@@ -55,15 +54,19 @@
 
 <script>
   import {db, settingsRef, actionsRef, stationsRef} from '../firebase'
+  import Navbar from '../components/common/Navbar'
   import Header from './results/header'
 //  let Pusher = require('pusher-js')
 
   export default {
     components: {
+      myNavbar: Navbar,
       myHeader: Header
     },
     data () {
       return {
+        offsetTimeOn: 1,
+        offsetTimeOff: 2,
         settings: {
           duration: 3
         },
@@ -76,7 +79,8 @@
         processing: false,
         processingIntervalId: '',
         mouseIsDown: false,
-        safePeriod: false,
+        progressBarDisabled: false,
+        drawButtonState: 'preparing', // 'preparing', 'ready', 'expired'
         mouseDownTimerId: null
       }
     },
@@ -87,9 +91,10 @@
     },
     mounted () {
       let vm = this
-      db.ref('settings').once('value', function () {
+      db.ref('settings').on('value', function () {
         for (var key in vm.dbSettings) {
           vm.settings.duration = vm.dbSettings[key].duration
+          vm.max = vm.settings.duration * 10
         }
       })
       db.ref('actions').once('value', function () {
@@ -97,15 +102,27 @@
       })
     },
     methods: {
-      mouseup () {
+      screenMouseUp () {
+        this.drawButtonState = 'preparing'
+      },
+      mouseleave () {
         let vm = this
-        let startDrawing = vm.safePeriod
         if (vm.mouseDownTimerId) {
           clearTimeout(vm.mouseDownTimerId)
         }
         vm.mouseDownTimerId = null
         vm.mouseIsDown = false
-        vm.safePeriod = false
+        vm.drawButtonState = 'preparing'
+      },
+      mouseup () {
+        let vm = this
+        let startDrawing = vm.drawButtonState === 'ready'
+        if (vm.mouseDownTimerId) {
+          clearTimeout(vm.mouseDownTimerId)
+        }
+        vm.mouseDownTimerId = null
+        vm.mouseIsDown = false
+        vm.drawButtonState = 'preparing'
 
         if (startDrawing) {
           console.log('start drawing')
@@ -121,7 +138,13 @@
         let vm = this
         vm.mouseDownTimerId = setInterval(() => {
           let duration = (new Date()) - this.mouseDownStartTime
-          vm.safePeriod = duration > 2000 && duration < 4000
+          if (duration > vm.offsetTimeOff * 1000) {
+            vm.drawButtonState = 'expired'
+          } else if (duration > vm.offsetTimeOn * 1000) {
+            vm.drawButtonState = 'ready'
+          } else {
+            vm.drawButtonState = 'preparing'
+          }
         }, 100)
       },
       processCommand () {
@@ -154,6 +177,7 @@
               actionsRef.child('lottery').set({
                 draw: stationKey
               })
+  //            vm.progressbarDisabled = false
               vm.value = 0
               let processingIntervalId = setInterval(() => {
                 vm.value++
@@ -161,7 +185,14 @@
                   clearInterval(processingIntervalId)
                   vm.processingIntervalId = ''
                   vm.processing = false
+//                  vm.progressbarDisabled = true
                   vm.value = 0
+//                  setTimeout(() => {
+//                    vm.value = 0
+//                  }, 1000)
+//                  setTimeout(() => {
+//                    vm.progressbarDisabled = false
+//                  }, 500)
                 }
               }, 100)
             }
@@ -178,6 +209,23 @@
 //      }
 //    },
     computed: {
+      drawButtonClass () {
+        let vm = this
+        switch (vm.drawButtonState) {
+          case 'preparing':
+            return 'btn-primary'
+          case 'ready':
+            return 'btn-success'
+          default:
+            return 'btn-danger'
+        }
+      },
+      progressbarClass () {
+        let vm = this
+        return {
+          disabled: vm.progressBarDisabled
+        }
+      },
       progressStyle () {
         let vm = this
         let widthPercent = Math.floor(vm.value * 100 / vm.max)
@@ -196,5 +244,16 @@
 </script>
 
 <style>
-
+  .panel-remark {
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+  }
+  .process-indicator.disabled {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -ms-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
+  }
 </style>

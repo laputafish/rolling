@@ -10,15 +10,15 @@
           </div>
           <div class="modal-body">
             <p>Are you sure?</p>
-            <div class="form-group">
+            <div class="form-group" v-if="code != ''">
               <label class="control-label">Code</label>
-              <input type="password" class="form-control" v-model="inputCode">
+              <input type="text" class="form-control" v-model="inputCode">
             </div>
             <p class="text-left badge-notes p-2 badge badge-success" v-if="notes">{{ notes }}</p>
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button :disabled="code !== inputCode" class="w-50 btn btn-danger modal-default-button" @click="$emit('ok')">Yes</button>
+              <button :disabled="code != '' && code !== inputCode" class="w-50 btn btn-danger modal-default-button" @click="$emit('ok')">Yes</button>
               <button class="w-50 btn btn-default modal-default-button" @click="$emit('close')">No</button>
             </slot>
           </div>

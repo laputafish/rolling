@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar fixed-top navbar-dark bg-dark">
+  <nav class="my-header navbar fixed-top navbar-dark bg-dark">
     <confirm-delete
       v-if="showModal"
       ref="modal"
@@ -11,15 +11,15 @@
         <h1>Confirmation</h1>
       </div>
     </confirm-delete>
-    <ul class="nav navbar-nav mr-auto">
-      <li class="nav-item">
-        <router-link tag="button" :to="'/cp'" class="btn btn-default" type="button"
-                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <i class="fa fa-reply"></i>&nbsp;Back
-        </router-link>
-      </li>
-    </ul>
-    <a class="navbar-brand mx-auto" href="#">Lottery 2018</a>
+    <!--<ul class="nav navbar-nav mr-auto">-->
+      <!--<li class="nav-item">-->
+        <!--<router-link tag="button" :to="'/cp'" class="btn btn-default" type="button"-->
+                     <!--aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">-->
+          <!--<i class="fa fa-reply"></i>&nbsp;Back-->
+        <!--</router-link>-->
+      <!--</li>-->
+    <!--</ul>-->
+    <a class="navbar-brand" :class="{'mx-auto':command=='','mr-auto':command!==''}" href="#">Lottery Draw 2018</a>
     <ul class="nav navbar-nav ml-auto">
       <li class="nav-item">
         <button v-if="command" @click="onButtonClick" class="btn btn-primary " type="button"
@@ -42,15 +42,14 @@
       confirm () {
         let vm = this
         vm.showModal = false
+        if (!vm.useCode) {
+          vm.code = ''
+        }
         this.$emit('commandHandler', {command: vm.command})
       },
       onButtonClick () {
         let vm = this
-        if (vm.useCode) {
-          vm.showModal = true
-        } else {
-          this.$emit('commandHandler', {command: vm.command})
-        }
+        vm.showModal = true
       }
     },
     props: {
@@ -87,3 +86,9 @@
     }
   }
 </script>
+
+<style>
+  .my-header.navbar {
+    padding-right: .5rem;
+  }
+</style>

@@ -1,6 +1,5 @@
 <template>
   <div id="controlPanel">
-    <my-navbar></my-navbar>
     <my-nav-pills></my-nav-pills>
     <router-view></router-link>
     </router-view>

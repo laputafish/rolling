@@ -2,15 +2,19 @@
   <div id="home">
     <div class="active-number-wrapper">
       <div class="active-number" :style="activeNumberStyle" v-if="useText">{{ number }}</div>
-      <div class="active-number digit" :style="digit2Style" :class="'digit'+digit2" v-if="!useText && digit2!=0">&nbsp;</div>
-      <div class="active-number digit" :style="digit1Style" :class="'digit'+digit1" v-if="!useText && digit1!=0">&nbsp;</div>
+      <div class="active-number digit" :style="digit2Style" :class="'digit'+digit2" v-if="!useText">&nbsp;</div>
+      <div class="active-number digit" :style="digit1Style" :class="'digit'+digit1" v-if="!useText">&nbsp;</div>
       <div class="active-number digit" :style="digit0Style" :class="'digit'+digit0" v-if="!useText">&nbsp;</div>
     </div>
     <div id="footer-pane">
-      <div class="drawn-numbers" v-if="showDrawnNumbers">
-        <div v-for="d in drawnNumbers" :style="drawnNumberStyle" class="drawn-number">{{ d.number }}</div>
+      <div class="drawn-numbers">
+        <div
+          v-for="d in drawnNumbers"
+          v-if="showDrawnNumbers"
+          :style="drawnNumberStyle"
+          class="drawn-number">{{ d.number }}</div>
       </div>
-      <div class="button-group">
+      <div class="button-group" v-if="showButtons">
         <div class="btn-group" role="group">
           <button :disabled="(running || numbers.length==0)" :class="{enabled:(!running && numbers.length>0)}" class="btn btn-default" @click="startRolling">Start</button>
         </div>
@@ -157,19 +161,46 @@
           vm.showNumber()
         })
       },
-      updateSettings (settings) {
+      updateSettings (settings, withNumberRange) {
+        console.log('updateSettings :: settings: ', settings)
+        console.log('updateSettings :: settings.showDrawnNumbers : ', settings.showDrawnNumbers)
         let vm = this
-        if (settings.startNumber) vm.startNumber = settings.startNumber
-        if (settings.endNumber) vm.endNumber = settings.endNumber
-        if (settings.duration) vm.duration = settings.duration
-        if (settings.digitScale) vm.digitScale = settings.digitScale
-        if (settings.useText) vm.useText = settings.useText
-        if (settings.active_number_color) vm.activeNumberStyle.color = settings.active_number_color
-        if (settings.drawnNumberBkgdColor) vm.drawnNumberStyle.backgroundColor = settings.drawnNumberBkgdColor
-        if (settings.drawnNumberColor) vm.drawnNumberStyle.color = settings.drawnNumberColor
-        if (settings.font_family) vm.drawnNumberStyle.fontFamily = settings.font_family
-        if (settings.font_weight) vm.drawnNumberStyle.fontWeight = settings.font_weight
-        if (settings.showDrawnNumbers) vm.showDrawnNumbers = settings.showDrawnNumbers
+        if (typeof withNumberRange === 'undefined') {
+          withNumberRange = true
+        }
+
+        if (withNumberRange) {
+          if (settings.startNumber) vm.startNumber = settings.startNumber
+          if (settings.endNumber) vm.endNumber = settings.endNumber
+          if (settings.duration) vm.duration = settings.duration
+        }
+        if (typeof settings.digitScale !== 'undefined') {
+          vm.digitScale = settings.digitScale
+        }
+        if (typeof settings.useText !== 'undefined') {
+          vm.useText = settings.useText
+        }
+        if (typeof settings.active_number_color !== 'undefined') {
+          vm.activeNumberStyle.color = settings.active_number_color
+        }
+        if (typeof settings.drawnNumberBkgdColor !== 'undefined') {
+          vm.drawnNumberStyle.backgroundColor = settings.drawnNumberBkgdColor
+        }
+        if (typeof settings.drawnNumberColor !== 'undefined') {
+          vm.drawnNumberStyle.color = settings.drawnNumberColor
+        }
+        if (typeof settings.font_family !== 'undefined') {
+          vm.drawnNumberStyle.fontFamily = settings.font_family
+        }
+        if (typeof settings.font_weight !== 'undefined') {
+          vm.drawnNumberStyle.fontWeight = settings.font_weight
+        }
+        if (typeof settings.showDrawnNumbers !== 'undefined') {
+          vm.showDrawnNumbers = settings.showDrawnNumbers
+        }
+        if (typeof settings.showButtons !== 'undefined') {
+          vm.showButtons = settings.showButtons
+        }
       },
       initNumbers () {
         let vm = this
@@ -196,6 +227,7 @@
       })
       vm.stationKey = ref.key
 
+      // Stations
       stationsRef.once('value', (snapshot) => {
         let value = snapshot.val()
         for (var key in value) {
@@ -221,27 +253,30 @@
 //        }
 //      })
 
-      settingsRef.once('value', () => {
-        if (vm.settings.length > 0) {
-          vm.updateSettings(vm.settings[0])
+      // Settings
+      settingsRef.on('value', () => {
+        if (vm.settings) {
+          if (vm.settings.length > 0) {
+            vm.updateSettings(vm.settings[0])
+          }
+          drawnNumbersRef.once('value', () => {
+            vm.initNumbers()
+            vm.adjustNumbers()
+            vm.number = 0
+            // vm.number = vm.endNumber
+            // if (vm.numbers.length > 0) {
+            //   vm.number = vm.numbers[0]
+            // }
+            vm.showNumber()
+          })
         }
-        console.log('settingsRef.once(value): vm.startNumber = ' + vm.startNumber)
-        console.log('settingsRef.once(value): vm.endNumber = ' + vm.endNumber)
-        console.log('settingsRef.once(value): vm.duration = ' + vm.duration)
-        drawnNumbersRef.once('value', () => {
-          vm.initNumbers()
-          console.log('once :: vm.drawnNumbers.length = ' + vm.drawnNumbers.length)
-          console.log('once :: vm.numbers.length = ' + vm.numbers.length)
-          vm.adjustNumbers()
-          console.log('after splice :: vm.numbers.length = ' + vm.numbers.length)
-          vm.number = 0
-          // vm.number = vm.endNumber
-          // if (vm.numbers.length > 0) {
-          //   vm.number = vm.numbers[0]
-          // }
-          vm.showNumber()
-        })
       })
+
+//      settingsRef.on('value', () => {
+//        if (vm.settings.length > 0) {
+//          vm.updateSettings(vm.settings[0], false)
+//        }
+//      })
 
 //      actionsRef.child('lottery').on('value', (snapshot) => {
 //        let lotteryValue = snapshot.val()
@@ -309,6 +344,7 @@
       digit1Style () {
         let vm = this
         let digitWidth = vm.digitWidths[vm.digit1] * vm.digitScale
+        if (vm.number < 10) digitWidth = 0
         return {
           width: digitWidth + 'px'
         }
@@ -316,6 +352,7 @@
       digit2Style () {
         let vm = this
         let digitWidth = vm.digitWidths[vm.digit2] * vm.digitScale
+        if (vm.number < 100) digitWidth = 0
         return {
           width: digitWidth + 'px'
         }
@@ -342,6 +379,7 @@
         drawnNumberStyle: {color: 'white', backgroundColor: 'black'},
         showDrawnNumbers: false,
         digitScale: 0.8,
+        showButtons: true,
         digitWidths: [
           125, // 0
           88, // 1
@@ -349,10 +387,10 @@
           121, // 3
           130, // 4
           120, // 5
-          149, // 6
+          123, // 6
           107, // 7
           127, // 8
-          145
+          123
         ]
       }
     }
@@ -401,7 +439,6 @@
   }
   @media(min-width:480px) {
     #home {
-      background-image: url("/static/img/lucky_draw_center.jpg");
       background-size: 100% auto;
     }
     .active-number-wrapper {
@@ -410,7 +447,6 @@
   }
   @media(min-width:768px) {
     #home {
-      background-image: url("/static/img/lucky_draw_center.jpg");
       background-size: 100% auto;
     }
     .active-number-wrapper {
@@ -419,7 +455,7 @@
   }
   @media(min-width:1080px) {
     #home {
-      background-image: url("/static/img/lucky_draw_bkgd.jpg");
+      background-image: url("/static/img/lucky_draw_bkgd.gif");
     }
     .active-number-wrapper {
       top: 38%;
@@ -428,7 +464,6 @@
 
   @media(min-width:1280px) {
     #home {
-      background-image: url("/static/img/lucky_draw_bkgd.jpg");
       background-position: center;
     }
     .active-number-wrapper {
@@ -459,7 +494,7 @@
   }
   #footer-pane {
     bottom: 0;
-    height: 300px;
+    height: 220px;
     background-color: transparent;
     position: absolute;
     width: 100%;

@@ -4,21 +4,15 @@
       @commandHandler="processCommand"
       command="save"
       commandLabel="Save"
-      code="update"
-      :useCode="true"
+      code=""
+      :useCode="false"
       notes="Effect relfected on frontend only after refresh."
       icon="fa-save">
     </my-header>
     <vue-toastr
       ref="toastr"
-      click-close="true"
-      default-progress-bar="false"></vue-toastr>
-    <div class="container my-5">
-      <div class="row">
-        <div class="col-sm-12 my-3 text-center">
-          <h3>Configuration</h3>
-        </div>
-      </div>
+      click-close="true"></vue-toastr>
+    <div class="content-pane container">
       <div class="row" v-for="(setting,key) in settings">
         <div class="form-group col-6 col-md-4">
           <label for="startNumber">Start Number</label>
@@ -48,24 +42,35 @@
                  @change="saveDigitScale"
                  placeholder="Digit scale ratio">
         </div>
-        <div class="form-group col-sm-6 col-md-4">
-          <label for="drawnNumberColor">Drawn Number Text Color</label>
+        <div class="col-12">
+          <h5>Drawn Number on Frontend</h5>
+        </div>
+        <div class="form-group col-6 col-md-4">
+          <label for="drawnNumberColor">Text Color</label>
           <input type="text" class="form-control" id="drawnNumberColor" name="drawnNumberColor"
                  v-model="drawnNumberColor"
                  placeholder="Drawn number color">
         </div>
-        <div class="form-group col-sm-6 col-md-4">
-          <label for="drawnNumberBkgdColor">Drawn Number Background Color</label>
+        <div class="form-group col-6 col-md-4">
+          <label for="drawnNumberBkgdColor">Background Color</label>
           <input type="text" class="form-control" id="drawnNumberBkgdColor" name="drawnNumberBkgdColor"
                  v-model="drawnNumberBkgdColor"
                  placeholder="Drawn number background color">
         </div>
 
-        <div class="form-group col-sm-6 col-md-4 checkbox">
-          <label for="showDrawnNumbers">Show Drawn Numbers on Frontend</label><br/>
+        <div class="form-group col-6 col-md-4 checkbox">
+          <label for="showDrawnNumbers">Show Numbers</label><br/>
           <bootstrap-toggle
             class="form-control"
             v-model="showDrawnNumbers"
+            :options="{ on: 'Yes', off: 'No'}"/>
+        </div>
+
+        <div class="form-group col-6 col-md-4 checkbox">
+          <label for="showDrawnNumbers">Show Draw Button</label><br/>
+          <bootstrap-toggle
+            class="form-control"
+            v-model="showButtons"
             :options="{ on: 'Yes', off: 'No'}"/>
         </div>
       </div>
@@ -102,6 +107,7 @@
         drawnNumberColor: 'white',
         drawnNumberBkgdColor: 'black',
         showDrawnNumbers: false,
+        showButtons: false,
         numberWidths: [10]
       }
     },
@@ -110,15 +116,20 @@
     },
     mounted () {
       let vm = this
+      // change global progress bar
+      this.$toastr.defaultTimeout = 2000
+      this.$toastr.defaultProgressBar = false
+
       db.ref('settings').once('value', function () {
         for (var key in vm.settings) {
           vm.startNumber = parseInt(vm.settings[key].startNumber)
           vm.endNumber = parseInt(vm.settings[key].endNumber)
           vm.duration = parseInt(vm.settings[key].duration)
-          if (vm.settings[key].digitScale) vm.digitScale = parseFloat(vm.settings[key].digitScale)
-          if (vm.settings[key].drawnNumberColor) vm.drawnNumberColor = vm.settings[key].drawnNumberColor
-          if (vm.settings[key].drawnNumberBkgdColor) vm.drawnNumberBkgdColor = vm.settings[key].drawnNumberBkgdColor
-          if (vm.settings[key].showDrawnNumbers) vm.showDrawnNumbers = vm.settings[key].showDrawnNumbers
+          if (typeof vm.settings[key].digitScale === 'undefined') vm.digitScale = parseFloat(vm.settings[key].digitScale)
+          if (typeof vm.settings[key].drawnNumberColor === 'undefined') vm.drawnNumberColor = vm.settings[key].drawnNumberColor
+          if (typeof vm.settings[key].drawnNumberBkgdColor === 'undefined') vm.drawnNumberBkgdColor = vm.settings[key].drawnNumberBkgdColor
+          if (typeof vm.settings[key].showDrawnNumbers === 'undefined') vm.showDrawnNumbers = vm.settings[key].showDrawnNumbers
+          if (typeof vm.settings[key].showButtons === 'undefined') vm.showButtons = vm.settings[key].showButtons
           break
         }
         if (vm.settings[key].numberWidths) {
@@ -166,6 +177,7 @@
           drawnNumberColor: vm.drawnNumberColor,
           drawnNumberBkgdColor: vm.drawnNumberBkgdColor,
           showDrawnNumbers: vm.showDrawnNumbers,
+          showButtons: vm.showButtons,
           numberWidths: vm.numberWidths.join(',')
         })
         vm.$toastr.s('Saved.')

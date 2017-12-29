@@ -6,20 +6,16 @@
       commandLabel="Reset"
       :useCode="true"
       code="reset"
+      notes="Type 'reset' as code."
       icon="fa-recycle">
     </my-header>
-    <div class="container my-5 results-pane">
+    <div class="content-pane container results-pane">
       <div class="row">
-        <div class="col-sm-12 my-3 text-center">
-          <h3>Results</h3>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-3 col-sm-2 col-md-1" style="padding-left:20px;padding-right:10px;"
+        <div class="col-3 col-sm-2 col-md-2 col-lg-1" style="padding-left:20px;padding-right:10px;"
              v-for="(item,index) in drawnNumbers">
-          <small style="position:absolute;left:5px;top:0;">{{ index + 1 }}</small>
-          <h1 style="display:inline-block;"><span
-            class="results-drawn-number badge badge-lg badge-primary">{{ item.number }}</span></h1>
+          <small class="index-number">{{ index + 1 }}</small>
+          <h2 style="display:inline-block;"><span
+            class="results-drawn-number badge badge-lg badge-primary">{{ item.number }}</span></h2>
         </div>
       </div>
       <div class="row" v-if="false">
@@ -81,5 +77,12 @@
 <style>
   .results-drawn-number {
     min-width: 60px;
+  }
+
+  .index-number {
+    color: darkgray;
+    position:absolute;
+    left:5px;
+    top:0;
   }
 </style>

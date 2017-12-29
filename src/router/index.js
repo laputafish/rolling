@@ -22,7 +22,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/panel',
+      redirect: '/home',
       name: 'Blank',
       component: Blank,
       children: [
@@ -30,6 +30,18 @@ export default new Router({
           path: '/home',
           name: 'Home',
           component: Home
+        },
+        {
+          path: '/panel',
+          redirect: '/cp/panel'
+        },
+        {
+          path: '/results',
+          redirect: '/cp/results'
+        },
+        {
+          path: '/settings',
+          redirect: '/cp/settings'
         }
         // ,
         // {
@@ -56,7 +68,7 @@ export default new Router({
     {
       path: '/cp',
       name: 'ControlPanel',
-      redirect: '/cp/main',
+      redirect: '/cp/panel',
       component: ControlPanel,
       children: [
         // {
