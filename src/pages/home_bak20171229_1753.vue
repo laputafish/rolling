@@ -424,12 +424,10 @@
   }
 
   #home {
-    background-image: url("/static/img/bkgd.gif");
-    /*background-image: url("/static/img/lucky_draw_center.jpg");*/
+    background-image: url("/static/img/lucky_draw_center.jpg");
     background-repeat: no-repeat;
     background-position: center 30%;
-    /*background-size: 160%;*/
-    background-size: auto 100%;
+    background-size: 160%;
     display:table-cell;
     vertical-align:middle;
     height: 100%;
@@ -441,8 +439,7 @@
   }
   @media(min-width:480px) {
     #home {
-      background-size: cover;
-      /*background-size: 100% auto;*/
+      background-size: 100% auto;
     }
     .active-number-wrapper {
       top: 40%;
@@ -450,7 +447,7 @@
   }
   @media(min-width:768px) {
     #home {
-      /*background-size: 100% auto;*/
+      background-size: 100% auto;
     }
     .active-number-wrapper {
       top: 45%;
@@ -458,23 +455,19 @@
   }
   @media(min-width:1080px) {
     #home {
-      /*      background-image: url("/static/img/lucky_draw_bkgd.gif");*/
-      background-image: url("/static/img/bkgd.gif");
-      background-size: cover;
-      background-position: center top;
-      background-repeat: no-repeat;
+      background-image: url("/static/img/lucky_draw_bkgd.gif");
     }
     .active-number-wrapper {
-      top: 50%;
+      top: 38%;
     }
   }
 
   @media(min-width:1280px) {
     #home {
-      /*background-position: center;*/
+      background-position: center;
     }
     .active-number-wrapper {
-      top: 60%;
+      top: 50%;
     }
   }
   .drawn-numbers {
