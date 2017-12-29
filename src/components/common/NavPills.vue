@@ -3,21 +3,21 @@
     <router-link
       :to="'/cp/panel'"
       tag="li"
-      class="nav-item py-2 col-4"
+      class="nav-item py-3 col-4"
       active-class="active">
       Panel
     </router-link>
     <router-link
       :to="'/cp/results'"
       tag="li"
-      class="nav-item py-2 col-4"
+      class="nav-item py-3 col-4"
       active-class="active">
       Results
     </router-link>
     <router-link
       :to="'/cp/settings'"
       tag="li"
-      class="nav-item py-2 col-4"
+      class="nav-item py-3 col-4"
       active-class="active">
       Settings
     </router-link>
