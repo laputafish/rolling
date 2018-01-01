@@ -48,7 +48,7 @@
           </ul>
         </div>
       </div>
-      <div class="row fixed-bottom button-row btn-group">
+      <div class="row fixed-bottom button-row btn-group mx-1">
         <button
           @click="identify"
           type="button"

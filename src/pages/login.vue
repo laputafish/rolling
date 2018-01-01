@@ -52,7 +52,7 @@
               </div>
             </div>
             <div class="carousel-item">
-              <img class="d-block img-fluid" src="https://static.pexels.com/photos/33972/pexels-photo.jpg" alt="First slide">
+              <img class="d-block img-fluid" src="https://www2.illinois.gov/PublishingImages/business/BusinessLanding.jpg?RenditionID=8" alt="First slide">
               <div class="carousel-caption d-none d-md-block" v-if="showCarouselCaption">
                 <div class="banner-text">
                   <h2>This is Heaven</h2>
@@ -114,6 +114,7 @@ export default {
 </script>
 
 <style scoped>
+
 .login-block {
   /* background: #DE6262; */
   /* fallback for old browsers */
@@ -123,23 +124,42 @@ export default {
   /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   background: #DDD;
   /* fallback for old browsers */
-  background: -webkit-linear-gradient(to bottom, #CCC, #222);
-  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to bottom, #CCC, #222);
-  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   float: left;
   width: 100%;
-  padding: 50px 0;
+  padding:10px;
 }
 
+@media(min-width: 480px) {
+  .login-block {
+    background: -webkit-linear-gradient(to bottom, #CCC, #222);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to bottom, #CCC, #222);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    padding: 50px 0;
+  }
+  .banner-sec {
+    border-radius: 0 10px 10px 0;
+  }
+
+  .carousel-inner {
+    border-radius: 0 10px 10px 0;
+  }
+}
 .banner-sec {
   background: url(https://static.pexels.com/photos/33972/pexels-photo.jpg) no-repeat left bottom;
   background-size: cover;
-  min-height: 500px;
-  border-radius: 0 10px 10px 0;
+  min-height: 200px;
+  border-radius: 0 0 10px 10px;
   padding: 0;
 }
 
+.carousel-inner {
+  border-radius: 0 0 10px 10px;
+}
+
+@media(min-width: 480px) {
+  min-height: 500px;
+}
 .container {
   background: #fff;
   border-radius: 10px;
@@ -160,16 +180,12 @@ export default {
   height: 100%;
 }
 .carousel-item img {
+  width: 100%;
   height: 100%;
   position: absolute;
   object-fit: cover;
 }
 
-
-
-.carousel-inner {
-  border-radius: 0 10px 10px 0;
-}
 
 .carousel-caption {
   text-align: left;
