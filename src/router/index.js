@@ -10,6 +10,9 @@ import ControlPanelMain from '@/pages/ControlPanelMain'
 import Results from '@/pages/Results'
 import Settings from '@/pages/Settings'
 import Panel from '@/pages/Panel'
+import Login from '@/pages/Login'
+
+import {store} from '../store/store'
 
 import jQuery from 'jquery'
 window.jQuery = jQuery
@@ -17,7 +20,7 @@ window.$ = jQuery
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   routes: [
     {
@@ -71,6 +74,11 @@ export default new Router({
       redirect: '/cp/panel',
       component: ControlPanel,
       children: [
+        {
+          path: 'login',
+          name: 'Login',
+          component: Login
+        },
         // {
         //   path: 'results',
         //
@@ -102,3 +110,18 @@ export default new Router({
 
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  console.log('beforeEach  to: ' + to.path)
+  if (to.name !== 'Login' && to.name !== 'Home') {
+    console.log('beforeEach to.name = ', to.name)
+    console.log('store.state:', store.state)
+    if (store.state.panelKey === '') {
+      next({name: 'Login'})
+    }
+  }
+  console.log('beforeEach router :: panelKey = ' + store.state.panelKey)
+  next()
+})
+
+export default router

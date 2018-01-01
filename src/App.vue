@@ -141,6 +141,13 @@
   .content-pane {
     margin-top:70px;
   }
+  button {
+    cursor: pointer;
+  }
+  .modal-container {
+    width: 98% !important;
+    max-width: 480px !important;
+  }
 </style>
 
 <style lang="scss">

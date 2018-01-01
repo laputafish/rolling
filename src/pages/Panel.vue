@@ -48,14 +48,33 @@
           </ul>
         </div>
       </div>
+      <div class="row fixed-bottom button-row btn-group">
+        <button
+          @click="identify"
+          type="button"
+          class="text-lg btn btn-xl btn-outline-primary col-6 p-3">
+          <h4 class="px-1 m-0 text-center">Identify Active PC</h4>
+        </button>
+        <button
+          @click="lock"
+          type="button"
+          class="btn btn-xl btn-outline-primary col-6 p-4">
+          <h4 class="px-1 text-center">
+            <i
+              class="fa fa-fw"
+              :class="{'fa-lock':locked, 'fa-unlock':!locked}"></i>
+              <span>Lock PC</span>
+          </h4>
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-  import {db, settingsRef, actionsRef, stationsRef} from '../firebase'
+  import {settingsRef, actionsRef, stationsRef, commandsRef} from '../firebase'
   import Navbar from '../components/common/Navbar'
-  import Header from './results/header'
+  import Header from '../components/common/header'
 //  let Pusher = require('pusher-js')
 
   export default {
@@ -81,24 +100,45 @@
         mouseIsDown: false,
         progressBarDisabled: false,
         drawButtonState: 'preparing', // 'preparing', 'ready', 'expired'
-        mouseDownTimerId: null
+        mouseDownTimerId: null,
+        lastStationKey: '',
+        locked: false
       }
     },
     firebase: {
       dbSettings: settingsRef,
       actions: actionsRef,
-      stations: stationsRef
+      stations: stationsRef,
+      commands: commandsRef
     },
     mounted () {
       let vm = this
-      db.ref('settings').on('value', function () {
+      console.log('Panel mounted :: panelKey = ' + vm.$store.state.panelKey)
+      // if (vm.$store.state.panelKey === '') {
+      //   vm.$router.push('/cp/login')
+      // }
+      settingsRef.on('value', function () {
         for (var key in vm.dbSettings) {
           vm.settings.duration = vm.dbSettings[key].duration
           vm.max = vm.settings.duration * 10
         }
       })
-      db.ref('actions').once('value', function () {
-        console.log('actionsRef:', vm.actionsRef)
+      // db.ref('actions').once('value', function () {
+      //   console.log('actionsRef:', vm.actionsRef)
+      // })
+      stationsRef.on('value', (snapshot) => {
+        let stations = snapshot.val()
+        vm.locked = false
+        vm.lastStationKey = ''
+        for (var stationKey in stations) {
+          let station = stations[stationKey]
+          console.log('station: ', station)
+          if (station.active) {
+            vm.locked = true
+            vm.lastStationKey = stationKey
+            break
+          }
+        }
       })
     },
     methods: {
@@ -150,7 +190,108 @@
       processCommand () {
         // keep for dummy
       },
+      lock () {
+        let vm = this
+        if (!vm.locked) {
+          console.log('vm.lastStationKey = ' + vm.lastStationKey)
+          vm.getStation((stationKey, station) => {
+            station.active = true
+            stationsRef.child(stationKey).set(station)
+            vm.locked = true
+            vm.sendCommand('identify')
+          }, vm.lastStationKey)
+        } else {
+          stationsRef.once('value', (snapshot) => {
+            let stations = snapshot.val()
+            for (var stationKey in stations) {
+              let station = stations[stationKey]
+              station.active = false
+              stationsRef.child(stationKey).set(station)
+              vm.sendCommand('identify', stationKey)
+            }
+            vm.locked = false
+          })
+        }
+      },
+      getStation (callback, stationKey) {
+        if (typeof stationKey === 'undefined') {
+          stationKey = ''
+        }
+
+        if (stationKey !== '') {
+          if (typeof callback !== 'undefined') {
+            stationsRef.child(stationKey).once('value', (snapshot) => {
+              let station = snapshot.val()
+              callback(stationKey, station)
+            })
+          }
+        } else {
+          stationsRef.once('value', (snapshot) => {
+            let stations = snapshot.val()
+            let theStation = null
+            let theStationKey = null
+            let lastStation = null
+            let lastStationKey = null
+            for (var stationKey in stations) {
+              console.log('for key=' + stationKey)
+              let station = stations[stationKey]
+              if (station.active) {
+                theStation = station
+                theStationKey = stationKey
+                break
+              }
+              lastStation = station
+              lastStationKey = stationKey
+            }
+            if (theStation === null) {
+              theStation = lastStation
+              theStationKey = lastStationKey
+            }
+            console.log('theStationKey = ' + theStationKey)
+            if (theStation !== null) {
+              callback(theStationKey, theStation)
+            }
+          })
+        }
+      },
+      identify () {
+        this.sendCommand('identify')
+      },
+      xxxxx_sendCommand (callback) {
+        stationsRef.once('value', (snapshot) => {
+          let value = snapshot.val()
+          let stationKey = ''
+          for (var key in value) {
+            stationKey = key
+            break
+          }
+          if (stationKey !== '') {
+            callback(stationKey)
+          }
+        })
+      },
+      sendCommand (command, stationKey) {
+        let vm = this
+        if (typeof stationKey === 'undefined') {
+          vm.getStation((stationKey, station) => {
+            commandsRef.remove()
+            commandsRef.push({
+              command: command,
+              stationKey: stationKey
+            })
+          })
+        } else {
+          commandsRef.remove()
+          commandsRef.push({
+            command: command,
+            stationKey: stationKey
+          })
+        }
+      },
       draw () {
+        this.sendCommand('draw')
+      },
+      draw2 () {
         let vm = this
         vm.processing = true
         if (vm.actions.length > 0) {
@@ -255,5 +396,18 @@
     -ms-transition: none !important;
     -o-transition: none !important;
     transition: none !important;
+  }
+
+  .button-row button {
+    cursor: pointer;
+  }
+  .button-row button h4 {
+    white-space: normal;
+  }
+  .button-row button:hover {
+    // background-color: #4da3ff
+  }
+  .button-row {
+    margin-bottom:60px;
   }
 </style>

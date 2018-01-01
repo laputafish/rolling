@@ -1,6 +1,9 @@
 <template>
 <section class="login-block">
   <div class="container">
+    <vue-toastr
+      ref="toastr"
+      click-close="true"></vue-toastr>
     <div class="row">
       <div class="col-md-4 login-sec">
         <h2 class="text-center">Login Now</h2>
@@ -14,11 +17,11 @@
             <input type="password" class="form-control" placeholder="" v-model="user.password">
           </div>
           <div class="form-check">
-            <label class="form-check-label">
+            <!-- <label class="form-check-label">
               <input type="checkbox" class="form-check-input" v-model="user.rememberMe">
               <small>Remember Me</small>
-            </label>
-            <button type="submit" class="btn btn-login float-right">Submit</button>
+            </label> -->
+            <button type="submit" class="btn btn-primary float-right">Submit</button>
           </div>
         </form>
       </div>
@@ -32,7 +35,7 @@
           <div class="carousel-inner" role="listbox">
             <div class="carousel-item active">
               <img class="d-block img-fluid" src="https://static.pexels.com/photos/33972/pexels-photo.jpg" alt="First slide">
-              <div class="carousel-caption d-none d-md-block">
+              <div class="carousel-caption d-none d-md-block" v-if="showCarouselCaption">
                 <div class="banner-text">
                   <h2>This is Heaven</h2>
                   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation</p>
@@ -41,7 +44,7 @@
             </div>
             <div class="carousel-item">
               <img class="d-block img-fluid" src="https://images.pexels.com/photos/7097/people-coffee-tea-meeting.jpg" alt="First slide">
-              <div class="carousel-caption d-none d-md-block">
+              <div class="carousel-caption d-none d-md-block" v-if="showCarouselCaption">
                 <div class="banner-text">
                   <h2>This is Heaven</h2>
                   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation</p>
@@ -50,7 +53,7 @@
             </div>
             <div class="carousel-item">
               <img class="d-block img-fluid" src="https://static.pexels.com/photos/33972/pexels-photo.jpg" alt="First slide">
-              <div class="carousel-caption d-none d-md-block">
+              <div class="carousel-caption d-none d-md-block" v-if="showCarouselCaption">
                 <div class="banner-text">
                   <h2>This is Heaven</h2>
                   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation</p>
@@ -66,6 +69,9 @@
 </template>
 
 <script>
+import {validateUser, controlPanelsRef} from '../firebase'
+import {getCurrDateTime} from '../helpers/util.js'
+
 export default {
   data () {
     return {
@@ -73,25 +79,53 @@ export default {
         userId: '',
         password: '',
         rememberMe: false
-      }
+      },
+      showCarouselCaption: false
     }
   },
   name: 'Login',
   methods: {
     login () {
-      console.log('user: ', JSON.stringify(this.user))
+      console.log('login')
+      let vm = this
+      validateUser(vm.user, (passed) => {
+        console.log('passed: ', (passed ? 'true' : 'false'))
+        if (passed) {
+          controlPanelsRef.remove()
+          let ref = controlPanelsRef.push({
+            login_at: getCurrDateTime()
+          })
+          vm.setPanelKey(ref.key)
+          vm.$router.push({name: 'Panel'})
+        } else {
+          vm.$toastr.e('Login fails!')
+        }
+      })
+    },
+    setPanelKey (key) {
+      console.log('updatePanelKey key = ', key)
+      this.$store.commit('updatePanelKey', key)
     }
+  },
+  mounted () {
+
   }
 }
 </script>
 
 <style scoped>
 .login-block {
-  background: #DE6262;
+  /* background: #DE6262; */
   /* fallback for old browsers */
-  background: -webkit-linear-gradient(to bottom, #FFB88C, #DE6262);
+  /* background: -webkit-linear-gradient(to bottom, #FFB88C, #DE6262); */
   /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to bottom, #FFB88C, #DE6262);
+  /* background: linear-gradient(to bottom, #FFB88C, #DE6262); */
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: #DDD;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to bottom, #CCC, #222);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to bottom, #CCC, #222);
   /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   float: left;
   width: 100%;
@@ -111,6 +145,27 @@ export default {
   border-radius: 10px;
   box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
 }
+.carousel-caption {
+  position: relative;
+  top: 0;
+  color: rgba(0,0,0,.5);
+}
+.carousel {
+  height: 100%;
+}
+.carousel-inner {
+  height: 100%;
+}
+.carousel-item {
+  height: 100%;
+}
+.carousel-item img {
+  height: 100%;
+  position: absolute;
+  object-fit: cover;
+}
+
+
 
 .carousel-inner {
   border-radius: 0 10px 10px 0;
@@ -139,21 +194,24 @@ export default {
 }
 
 .login-sec .copy-text a {
-  color: #E36262;
+  /* color: #E36262; */
+  color: #007bff;
 }
 
 .login-sec h2 {
   margin-bottom: 30px;
   font-weight: 800;
   font-size: 30px;
-  color: #DE6262;
+  /* color: #DE6262; */
+  color: #007bff;
 }
 
 .login-sec h2:after {
   content: " ";
   width: 100px;
   height: 5px;
-  background: #FEB58A;
+  /* background: #FEB58A; */
+  background: #007bff;
   display: block;
   margin-top: 20px;
   border-radius: 3px;
@@ -162,34 +220,34 @@ export default {
 }
 
 .btn-login {
-  background: #DE6262;
+  /* background: #DE6262; */
   color: #fff;
   font-weight: 600;
 }
 
 .banner-text {
+  color: rgba(0,0,0,.5);
   width: 70%;
   position: absolute;
-  bottom: 40px;
   padding-left: 20px;
 }
 
 .banner-text h2 {
-  color: #fff;
+  color: rgba(0,0,0,.8);
   font-weight: 600;
 }
 
+.banner-text p {
+  color: rgba(0,0,0,.8);
+}
 .banner-text h2:after {
   content: " ";
   width: 100px;
   height: 5px;
-  background: #FFF;
+  background: rgba(0,0,0,.8);
   display: block;
   margin-top: 20px;
   border-radius: 3px;
 }
 
-.banner-text p {
-  color: #fff;
-}
 </style>

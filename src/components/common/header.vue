@@ -32,7 +32,7 @@
 </template>
 
 <script>
-  import ConfirmDelete from '../../components/common/ConfirmDelete'
+  import ConfirmDelete from './ConfirmDelete'
 
   export default {
     components: {
@@ -49,7 +49,11 @@
       },
       onButtonClick () {
         let vm = this
-        vm.showModal = true
+        if (vm.useCustomDialog) {
+          this.$emit('commandHandler', {command: vm.command})
+        } else {
+          vm.showModal = true
+        }
       }
     },
     props: {
@@ -76,6 +80,10 @@
       notes: {
         type: String,
         default: ''
+      },
+      useCustomDialog: {
+        type: Boolean,
+        default: null
       }
     },
     data () {

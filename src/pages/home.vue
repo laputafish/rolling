@@ -20,11 +20,23 @@
         </div>
       </div>
     </div>
+    <transition name="fade">
+      <div
+        id="identity-icon"
+        v-if="showingIdentity"
+        class="flex-box">
+        <div class="p-5 m-auto identity-icon-wrapper">
+          <i
+            class="my-auto fa fa-fw"
+            :class="{'fa-gift':!isStationActive, 'fa-check':isStationActive}"></i>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
-  import {stationsRef, drawnNumbersRef, settingsRef, actionsRef} from '../firebase'
+  import {stationsRef, drawnNumbersRef, settingsRef, actionsRef, commandsRef} from '../firebase'
   import {getCurrDateTime} from '../helpers/util.js'
 
   export default {
@@ -215,7 +227,15 @@
         vm.digit0 = vm.number % 10
         vm.digit1 = Math.floor(vm.number / 10) % 10
         vm.digit2 = Math.floor(vm.number / 100)
+      },
+      showIdentity () {
+        let vm = this
+        vm.showingIdentity = true
+        setTimeout(() => {
+          vm.showingIdentity = false
+        }, 1500)
       }
+
     },
     mounted: function () {
       let vm = this
@@ -223,18 +243,27 @@
 
       // register stations
       let ref = stationsRef.push({
-        station: getCurrDateTime()
+        connected_at: getCurrDateTime(),
+        active: false
       })
       vm.stationKey = ref.key
 
       // Stations
       stationsRef.once('value', (snapshot) => {
-        let value = snapshot.val()
-        for (var key in value) {
-          if (key !== vm.stationKey) {
-            stationsRef.child(key).remove()
+        let stations = snapshot.val()
+        for (var stationKey in stations) {
+          let station = stations[stationKey]
+          console.log('key #' + stationKey + ': active: ' + station.active)
+          if (stationKey !== vm.stationKey && !station.active) {
+            stationsRef.child(stationKey).remove()
           }
         }
+      })
+
+      stationsRef.child(vm.stationKey).on('value', (snapshot) => {
+        let value = snapshot.val()
+        vm.isStationActive = value.active
+        console.log('station on(value) active = ' + (vm.isStationActive ? 'yes' : 'no'))
       })
 
 //      stationsRef.once('value', () => {
@@ -254,11 +283,13 @@
 //      })
 
       // Settings
-      settingsRef.on('value', () => {
-        if (vm.settings) {
-          if (vm.settings.length > 0) {
-            vm.updateSettings(vm.settings[0])
-          }
+      settingsRef.on('value', (snapshot) => {
+        let settings = snapshot.val()
+        let values = settings.values
+        console.log('settingsRef.on(value) values: ', values)
+
+        if (typeof values !== 'undefined') {
+          vm.updateSettings(values)
           drawnNumbersRef.once('value', () => {
             vm.initNumbers()
             vm.adjustNumbers()
@@ -269,6 +300,21 @@
             // }
             vm.showNumber()
           })
+        // if (vm.settings) {
+        //   if (vm.settings.length > 0) {
+        //     vm.updateSettings(vm.settings[0])
+        //   }
+        //   drawnNumbersRef.once('value', () => {
+        //     vm.initNumbers()
+        //     vm.adjustNumbers()
+        //     vm.number = 0
+        //     // vm.number = vm.endNumber
+        //     // if (vm.numbers.length > 0) {
+        //     //   vm.number = vm.numbers[0]
+        //     // }
+        //     vm.showNumber()
+        //   })
+        // }
         }
       })
 
@@ -304,6 +350,26 @@
         }
       })
 
+      commandsRef.on('child_added', (snapshot) => {
+        let key = snapshot.key
+        let item = snapshot.val()
+        console.log('key: ', key)
+        console.log('stationKey: ', item.stationKey)
+        console.log('vm.stationKey: ', vm.stationKey)
+        console.log('command = ' + item.command)
+        if (item.stationKey === vm.stationKey) {
+          let command = item.command
+          switch (command) {
+            case 'draw':
+              vm.startRolling()
+              break
+            case 'identify':
+              vm.showIdentity()
+              break
+          }
+          commandsRef.child(key).remove()
+        }
+      })
 //      actionsRef.child('lottery').on('child_added', (snapshot) => {
 //        let value = snapshot.val()
 //        console.log('snapshot: ', snapshot)
@@ -361,6 +427,7 @@
     data () {
       return {
         stationKey: '',
+        isStationActive: false,
         useText: false,
         runningId: null,
         number: 1,
@@ -380,6 +447,7 @@
         showDrawnNumbers: false,
         digitScale: 0.8,
         showButtons: true,
+        showingIdentity: false,
         digitWidths: [
           125, // 0
           88, // 1
@@ -591,6 +659,31 @@
   /*height: 97px;*/
   /*display: inline-block;*/
   /*}*/
+#identity-icon {
+  position: absolute;
+  width: 100%;
+  height:  100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  font-size: 100%;
+}
+#identity-icon .identity-icon-wrapper {
+  border-radius: 50% 50%;
+  border: 40px solid rgba(255,255,255,.4);
+}
 
+#identity-icon .identity-icon-wrapper i {
+  font-size: 30vw;
+  color: rgba(255,255,255,.4);
+}
 
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+    opacity: 0
+}
 </style>

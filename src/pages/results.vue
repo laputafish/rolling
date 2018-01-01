@@ -38,7 +38,7 @@
 </template>
 
 <script>
-  import Header from './results/header'
+  import Header from '../components/common/header'
   import {db, drawnNumbersRef} from '../firebase'
 
   export default {

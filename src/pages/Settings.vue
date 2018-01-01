@@ -1,10 +1,24 @@
 <template>
   <div>
+    <confirm-update-settings
+      v-if="showModal"
+      ref="modal"
+      :code="''"
+      :notes="isStartEndNumbersChanged ? 'Start/end numbers changed! Drawn numbers will be cleared.' : ''"
+      notesClass="badge-danger"
+      :showNotes="isStartEndNumbersChanged"
+      @ok="confirm"
+      @close="showModal = false">`
+      <div slot="header">
+        <h1>Confirmation</h1>
+      </div>
+    </confirm-update-settings>
     <my-header
       @commandHandler="processCommand"
       command="save"
       commandLabel="Save"
       code=""
+      :useCustomDialog="true"
       :useCode="false"
       notes="Effect relfected on frontend only after refresh."
       icon="fa-save">
@@ -13,49 +27,69 @@
       ref="toastr"
       click-close="true"></vue-toastr>
     <div class="content-pane container">
-      <div class="row" v-for="(setting,key) in settings">
+      <div class="row">
         <div class="form-group col-6 col-md-4">
           <label for="startNumber">Start Number</label>
-          <input type="number" class="form-control" id="startNumber" name="endNumber"
-                 :value="setting.startNumber"
-                 @change="saveStartNumber"
-                 placeholder="Start number">
+          <input
+            type="number"
+            class="form-control"
+            id="startNumber"
+            name="endNumber"
+            v-model="startNumber"
+            placeholder="Start number">
         </div>
         <div class="form-group col-6 col-md-4">
           <label for="endNumber">End Number</label>
-          <input type="number" class="form-control" id="endNumber" name="endNumber"
-                 :value="setting.endNumber"
-                 @change="saveEndNumber"
-                 placeholder="End number">
+          <input
+            type="number"
+            class="form-control"
+            id="endNumber"
+            name="endNumber"
+            v-model="endNumber"
+            placeholder="End number">
         </div>
         <div class="form-group col-6 col-md-4">
           <label for="duration">Draw Time (sec)</label>
-          <input type="number" class="form-control" id="duration" name="duration"
-                 :value="setting.duration"
-                 @change="saveDuration"
-                 placeholder="Draw time">
+          <input
+            type="number"
+            class="form-control"
+            id="duration"
+            name="duration"
+            v-model="duration"
+            placeholder="Draw time">
         </div>
         <div class="form-group col-6 col-md-4">
           <label for="digitScale">Digit Scale Radio</label>
-          <input type="number" class="form-control" id="digitScale" name="digitScale"
-                 :value="setting.digitScale"
-                 @change="saveDigitScale"
-                 placeholder="Digit scale ratio">
+          <input
+            type="number"
+            class="form-control"
+            id="digitScale"
+            name="digitScale"
+            v-model="digitScale"
+            placeholder="Digit scale ratio">
         </div>
         <div class="col-12">
           <h5>Drawn Number on Frontend</h5>
         </div>
         <div class="form-group col-6 col-md-4">
           <label for="drawnNumberColor">Text Color</label>
-          <input type="text" class="form-control" id="drawnNumberColor" name="drawnNumberColor"
-                 v-model="drawnNumberColor"
-                 placeholder="Drawn number color">
+          <input
+            type="text"
+            class="form-control"
+            id="drawnNumberColor"
+            name="drawnNumberColor"
+            v-model="drawnNumberColor"
+            placeholder="Drawn number color">
         </div>
         <div class="form-group col-6 col-md-4">
           <label for="drawnNumberBkgdColor">Background Color</label>
-          <input type="text" class="form-control" id="drawnNumberBkgdColor" name="drawnNumberBkgdColor"
-                 v-model="drawnNumberBkgdColor"
-                 placeholder="Drawn number background color">
+          <input
+            type="text"
+            class="form-control"
+            id="drawnNumberBkgdColor"
+            name="drawnNumberBkgdColor"
+            v-model="drawnNumberBkgdColor"
+            placeholder="Drawn number background color">
         </div>
 
         <div class="form-group col-6 col-md-4 checkbox">
@@ -74,45 +108,40 @@
             :options="{ on: 'Yes', off: 'No'}"/>
         </div>
       </div>
-
-      <!--<div class="form-group row mb-0" v-for="n in 10">-->
-        <!--<label class="col-2 col-form-label pt-0 pr-0">-->
-          <!--<h2><span class="my-auto badge badge-primary number-label">{{ n - 0 }}</span></h2>-->
-        <!--</label>-->
-        <!--<div class="col-10 input-wrapper">-->
-          <!--<input class="form-control" v-model="numberWidths[n-1]"/>-->
-        <!--</div>-->
-      <!--</div>-->
     </div>
   </div>
 
 </template>
 
 <script>
-  import Header from './results/header'
-  import {db, settingsRef} from '../firebase'
+  import Header from '../components/common/header'
+  import {db, settingsRef, drawnNumbersRef} from '../firebase'
   import BootstrapToggle from 'vue-bootstrap-toggle'
+  import ConfirmUpdateSettings from '../components/common/ConfirmUpdateSettings'
 
   export default {
     components: {
       myHeader: Header,
-      BootstrapToggle
+      BootstrapToggle,
+      confirmUpdateSettings: ConfirmUpdateSettings
     },
     data () {
       return {
+        oldStartNumber: 1,
         startNumber: 1,
-        endNumber: 1,
-        duration: 1,
+        oldEndNumber: 10,
+        endNumber: 10,
+        duration: 3,
         digitScale: 0.8,
         drawnNumberColor: 'white',
         drawnNumberBkgdColor: 'black',
         showDrawnNumbers: false,
         showButtons: false,
-        numberWidths: [10]
+        numberWidths: [10],
+
+        showModal: false,
+        isStartEndNumbersChanged: false
       }
-    },
-    firebase: {
-      settings: settingsRef
     },
     mounted () {
       let vm = this
@@ -120,32 +149,77 @@
       this.$toastr.defaultTimeout = 2000
       this.$toastr.defaultProgressBar = false
 
-      db.ref('settings').once('value', function () {
-        for (var key in vm.settings) {
-          vm.startNumber = parseInt(vm.settings[key].startNumber)
-          vm.endNumber = parseInt(vm.settings[key].endNumber)
-          vm.duration = parseInt(vm.settings[key].duration)
+      db.ref('settings').once('value', (snapshot) => {
+        let settings = snapshot.val()
+        let values = settings.values
 
-          if (typeof vm.settings[key].digitScale !== 'undefined') vm.digitScale = parseFloat(vm.settings[key].digitScale)
-          if (typeof vm.settings[key].drawnNumberColor !== 'undefined') vm.drawnNumberColor = vm.settings[key].drawnNumberColor
-          if (typeof vm.settings[key].drawnNumberBkgdColor !== 'undefined') vm.drawnNumberBkgdColor = vm.settings[key].drawnNumberBkgdColor
-          if (typeof vm.settings[key].showDrawnNumbers !== 'undefined') vm.showDrawnNumbers = vm.settings[key].showDrawnNumbers
-          if (typeof vm.settings[key].showButtons !== 'undefined') vm.showButtons = vm.settings[key].showButtons
-          break
+        if (typeof values.startNumber !== 'undefined') {
+          vm.oldStartNumber = vm.startNumber = parseInt(values.startNumber)
         }
-        if (vm.settings[key].numberWidths) {
-          vm.numberWidths = vm.settings[key].numberWidths.split(',')
+        if (typeof values.endNumber !== 'undefined') {
+          vm.oldEndNumber = vm.endNumber = parseInt(values.endNumber)
+        }
+
+        if (typeof values.duration !== 'undefined') vm.duration = parseInt(values.duration)
+        if (typeof values.digitScale !== 'undefined') vm.digitScale = parseFloat(values.digitScale)
+        if (typeof values.drawnNumberColor !== 'undefined') vm.drawnNumberColor = values.drawnNumberColor
+        if (typeof values.drawnNumberBkgdColor !== 'undefined') vm.drawnNumberBkgdColor = values.drawnNumberBkgdColor
+        if (typeof values.showDrawnNumbers !== 'undefined') vm.showDrawnNumbers = values.showDrawnNumbers
+        if (typeof values.showButtons !== 'undefined') vm.showButtons = values.showButtons
+
+        if (typeof values.numberWidths !== 'undefined') {
+          vm.numberWidths = values.numberWidths.split(',')
         } else {
           vm.numberWidths = '125,88,117,121,130,120,149,107,127,145'.split(',')
         }
+
+        //
+        // for (var key = 0; key < vm.settings.length; key++) {
+        //   let setting = vm.settings[key]
+        //   console.log('Settings.vue :: setting[.key] = ' + setting['.key'])
+        //   if (setting['.key'] === 'values') {
+        //     vm.startNumber = parseInt(vm.settings[key].startNumber)
+        //     vm.endNumber = parseInt(vm.settings[key].endNumber)
+        //     vm.duration = parseInt(vm.settings[key].duration)
+        //
+        //     if (typeof vm.settings[key].digitScale !== 'undefined') vm.digitScale = parseFloat(vm.settings[key].digitScale)
+        //     if (typeof vm.settings[key].drawnNumberColor !== 'undefined') vm.drawnNumberColor = vm.settings[key].drawnNumberColor
+        //     if (typeof vm.settings[key].drawnNumberBkgdColor !== 'undefined') vm.drawnNumberBkgdColor = vm.settings[key].drawnNumberBkgdColor
+        //     if (typeof vm.settings[key].showDrawnNumbers !== 'undefined') vm.showDrawnNumbers = vm.settings[key].showDrawnNumbers
+        //     if (typeof vm.settings[key].showButtons !== 'undefined') vm.showButtons = vm.settings[key].showButtons
+        //     break
+        //   }
+        // }
+        // if (vm.settings[key].numberWidths) {
+        //   vm.numberWidths = vm.settings[key].numberWidths.split(',')
+        // } else {
+        //   vm.numberWidths = '125,88,117,121,130,120,149,107,127,145'.split(',')
+        // }
       })
     },
     methods: {
+      confirm () {
+        let vm = this
+        vm.showModal = false
+        vm.save()
+      },
       processCommand (params) {
         let vm = this
         switch (params.command) {
           case 'save':
-            vm.save()
+            // Check start/end number changed
+            console.log((typeof vm.oldStartNumber) + ' oldStartNumber = ' + vm.oldStartNumber)
+            console.log((typeof vm.startNumber) + ' startNumber = ' + vm.startNumber)
+
+            console.log((typeof vm.oldEndNumber) + ' oldEndNumber = ' + vm.oldEndNumber)
+            console.log((typeof vm.endNumber) + ' endNumber = ' + vm.endNumber)
+
+            vm.isStartEndNumbersChanged =
+              (vm.oldStartNumber !== vm.startNumber) ||
+              (vm.oldEndNumber !== vm.endNumber)
+
+            vm.showModal = true
+            break
         }
       },
       saveStartNumber (event) {
@@ -170,6 +244,9 @@
       save () {
         let vm = this
         console.log('save :: vm.numberWidths: ', vm.numberWidths)
+        if (vm.isStartEndNumbersChanged) {
+          drawnNumbersRef.remove()
+        }
         settingsRef.child('values').set({
           startNumber: parseInt(vm.startNumber),
           endNumber: parseInt(vm.endNumber),

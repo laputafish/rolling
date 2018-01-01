@@ -8,6 +8,8 @@ import App from './App'
 import router from './router'
 import Toastr from 'vue-toastr'
 import VueResource from 'vue-resource'
+import {store} from './store/store'
+
 // import jQuery from 'jquery'
 //
 import 'font-awesome/scss/font-awesome.scss'
@@ -45,6 +47,7 @@ window.Vue = Vue
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,
   router,
   template: '<App/>',
   components: { App }

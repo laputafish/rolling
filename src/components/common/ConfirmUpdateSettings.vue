@@ -1,6 +1,6 @@
 <template>
   <transition name="modal">
-    <div class="modal-mask">
+    <div class="modal-mask ">
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header">
@@ -10,15 +10,18 @@
           </div>
           <div class="modal-body">
             <p>Are you sure?</p>
-            <div class="form-group" v-if="code != ''">
+            <!-- <div class="form-group" v-if="code != ''">
               <label class="control-label">Code</label>
               <input type="text" class="form-control" v-model="inputCode">
-            </div>
-            <p class="text-left badge-notes p-2 badge badge-success" v-if="notes">{{ notes }}</p>
+            </div> -->
+            <p :class="notesClass" class="text-left badge-notes p-2 badge" v-if="notes">{{ notes }}</p>
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button :disabled="code != '' && code !== inputCode" class="w-50 btn btn-danger modal-default-button" @click="$emit('ok')">Yes</button>
+              <button
+                :disabled="code != '' && code !== inputCode"
+                class="w-50 btn btn-primary modal-default-button"
+                @click="$emit('ok')">Yes</button>
               <button class="w-50 btn btn-default modal-default-button" @click="$emit('close')">No</button>
             </slot>
           </div>
@@ -29,11 +32,8 @@
 </template>
 
 <script>
-  let $ = require('jquery')
-  window.jQuery = $
-
   export default {
-    props: ['msg', 'code', 'notes'],
+    props: ['msg', 'code', 'notes', 'notesClass'],
     methods: {
       show: function () {
 
@@ -127,4 +127,6 @@
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
   }
+
+
 </style>
