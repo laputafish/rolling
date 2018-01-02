@@ -146,8 +146,7 @@
     mounted () {
       let vm = this
       // change global progress bar
-      this.$toastr.defaultTimeout = 2000
-      this.$toastr.defaultProgressBar = false
+      vm.$toastr.defaultProgressBar = false
 
       db.ref('settings').once('value', (snapshot) => {
         let settings = snapshot.val()

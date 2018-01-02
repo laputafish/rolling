@@ -22,6 +22,7 @@
       <div class="row">
         <div class="col-sm-12">
           <div class="progress">
+            <div class="progress-value">{{ progressValue }}</div>
             <div class="progress-bar bg-warning process-indicator"
                  :class="progressbarClass"
                  :style="progressStyle"
@@ -102,7 +103,9 @@
         drawButtonState: 'preparing', // 'preparing', 'ready', 'expired'
         mouseDownTimerId: null,
         lastStationKey: '',
-        locked: false
+        locked: false,
+
+        progressValue: ''
       }
     },
     firebase: {
@@ -289,7 +292,31 @@
         }
       },
       draw () {
+        let vm = this
         this.sendCommand('draw')
+        vm.processing = true
+        vm.value = 0
+        let processingIntervalId = setInterval(() => {
+          vm.value++
+          vm.progressValue = Math.floor(vm.value / 10) + ' sec'
+          if (vm.value > vm.max) {
+            setTimeout(() => {
+              clearInterval(processingIntervalId)
+              vm.processingIntervalId = ''
+              vm.processing = false
+              vm.progressValue = ''
+              //                  vm.progressbarDisabled = true
+              vm.value = 0
+              //                  setTimeout(() => {
+              //                    vm.value = 0
+              //                  }, 1000)
+              //                  setTimeout(() => {
+              //                    vm.progressbarDisabled = false
+              //                  }, 500)
+            },
+            500)
+          }
+        }, 100)
       },
       draw2 () {
         let vm = this
@@ -400,14 +427,35 @@
 
   .button-row button {
     cursor: pointer;
+    color: #007bff;
+  }
+
+  .button-row button:active {
+    background-color: #007bff;
+    color: white;
   }
   .button-row button h4 {
     white-space: normal;
   }
-  .button-row button:hover {
-    // background-color: #4da3ff
+  .button-row button:focus {
+    box-shadow: none;
+    background-color: transparent;
+    color: #007bff;
+  }
+  .html.no-touch .button-row button:hover {
+    background-color: #4da3ff;
+    color: white;
   }
   .button-row {
     margin-bottom:60px;
+  }
+  .progress {
+    font-size: 16px;
+    height: 22px;
+  }
+  .progress-value {
+    position: absolute;
+    width: 100%;
+    text-align: center;
   }
 </style>

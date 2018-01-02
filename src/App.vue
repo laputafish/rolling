@@ -96,8 +96,7 @@
       }
     },
     mounted () {
-      let vm = this
-      vm.resetNumbers()
+      this.resetNumbers()
     },
     computed: {
       getDigit0Class () {

@@ -66,10 +66,6 @@
     },
     data () {
       return {}
-    },
-
-    mounted: () => {
-
     }
   }
 </script>

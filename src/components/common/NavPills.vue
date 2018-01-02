@@ -1,5 +1,8 @@
 <template>
   <ul class="nav nav-pills nav-fill fixed-bottom">
+    <vue-toastr
+      ref="toastr"
+      click-close="true"></vue-toastr>
     <router-link
       :to="'/cp/panel'"
       tag="li"
@@ -34,22 +37,24 @@
 import {controlPanelsRef} from '../../firebase'
 
 export default {
-  data () {
-    return {
-      controlPanelKey: ''
-    }
-  },
   firebase: {
     controlPanels: controlPanelsRef
   },
   methods: {
     logout () {
       let vm = this
-      if (vm.controlPanelKey !== '') {
-        controlPanelsRef.child(vm.controlPanelKey).remove()
+      if (vm.$store.state.panelKey !== '') {
+        let selfPanelKey = vm.$store.state.panelKey
+        // remove self panel key to avoid popup of another control panel opened
+        this.$store.commit('updatePanelKey', '')
+        controlPanelsRef.child(selfPanelKey).remove()
       }
       vm.$router.push('/cp/login')
     }
+  },
+  mounted () {
+    let vm = this
+    vm.$toastr.defaultProgressBar = false
   }
 }
 </script>
@@ -74,6 +79,9 @@ export default {
 .nav-pills .nav-item.active {
   background-color: darkgray;
   color: white;
+}
+.nav-pills .nav-item i {
+  font-size: 18px;
 }
 /*.nav-pills .nav-item.active a {*/
   /*color: black;*/

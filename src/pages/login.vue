@@ -34,7 +34,7 @@
           </ol>
           <div class="carousel-inner" role="listbox">
             <div class="carousel-item active">
-              <img class="d-block img-fluid" src="https://static.pexels.com/photos/33972/pexels-photo.jpg" alt="First slide">
+              <img class="d-block img-fluid" src="/static/img/banners/banner1.jpg" alt="First slide">
               <div class="carousel-caption d-none d-md-block" v-if="showCarouselCaption">
                 <div class="banner-text">
                   <h2>This is Heaven</h2>
@@ -43,7 +43,7 @@
               </div>
             </div>
             <div class="carousel-item">
-              <img class="d-block img-fluid" src="https://images.pexels.com/photos/7097/people-coffee-tea-meeting.jpg" alt="First slide">
+              <img class="d-block img-fluid" src="/static/img/banners/banner2.jpg" alt="First slide">
               <div class="carousel-caption d-none d-md-block" v-if="showCarouselCaption">
                 <div class="banner-text">
                   <h2>This is Heaven</h2>
@@ -52,7 +52,7 @@
               </div>
             </div>
             <div class="carousel-item">
-              <img class="d-block img-fluid" src="https://www2.illinois.gov/PublishingImages/business/BusinessLanding.jpg?RenditionID=8" alt="First slide">
+              <img class="d-block img-fluid" src="/static/img/banners/banner3.jpg" alt="First slide">
               <div class="carousel-caption d-none d-md-block" v-if="showCarouselCaption">
                 <div class="banner-text">
                   <h2>This is Heaven</h2>
@@ -129,6 +129,19 @@ export default {
   padding:10px;
 }
 
+.carousel-inner {
+  border-radius: 0 0 10px 10px;
+  height: 100%;
+}
+
+.banner-sec {
+  background: url(/static/img/banners/banner1.jpg) no-repeat left bottom;
+  background-size: cover;
+  min-height: 200px;
+  border-radius: 0 0 10px 10px;
+  padding: 0;
+}
+
 @media(min-width: 480px) {
   .login-block {
     background: -webkit-linear-gradient(to bottom, #CCC, #222);
@@ -145,40 +158,33 @@ export default {
     border-radius: 0 10px 10px 0;
   }
 }
-.banner-sec {
-  background: url(https://static.pexels.com/photos/33972/pexels-photo.jpg) no-repeat left bottom;
-  background-size: cover;
-  min-height: 200px;
-  border-radius: 0 0 10px 10px;
-  padding: 0;
-}
 
-.carousel-inner {
-  border-radius: 0 0 10px 10px;
-}
 
-@media(min-width: 480px) {
-  min-height: 500px;
-}
+/*@media(min-width: 480px) {*/
+  /*min-height: 500px;*/
+/*}*/
 .container {
   background: #fff;
   border-radius: 10px;
   box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
 }
+
 .carousel-caption {
   position: relative;
   top: 0;
   color: rgba(0,0,0,.5);
+  text-align: left;
+  left: 5%;
 }
+
 .carousel {
   height: 100%;
 }
-.carousel-inner {
-  height: 100%;
-}
+
 .carousel-item {
   height: 100%;
 }
+
 .carousel-item img {
   width: 100%;
   height: 100%;
@@ -186,15 +192,15 @@ export default {
   object-fit: cover;
 }
 
-
-.carousel-caption {
-  text-align: left;
-  left: 5%;
+.login-sec {
+  padding: 10px 30px 20px 30px;
+  position: relative;
 }
 
-.login-sec {
-  padding: 50px 30px;
-  position: relative;
+@media(min-width: 480px) {
+  .login-sec {
+    padding: 50px 30px;
+  }
 }
 
 .login-sec .copy-text {

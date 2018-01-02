@@ -33,19 +33,19 @@ const router = new Router({
           path: '/home',
           name: 'Home',
           component: Home
-        },
-        {
-          path: '/panel',
-          redirect: '/cp/panel'
-        },
-        {
-          path: '/results',
-          redirect: '/cp/results'
-        },
-        {
-          path: '/settings',
-          redirect: '/cp/settings'
         }
+        // {
+        //   path: '/panel',
+        //   redirect: '/cp/panel'
+        // },
+        // {
+        //   path: '/results',
+        //   redirect: '/cp/results'
+        // },
+        // {
+        //   path: '/settings',
+        //   redirect: '/cp/settings'
+        // }
         // ,
         // {
         //   path: 'auth',
