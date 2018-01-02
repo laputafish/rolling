@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="settings-page">
     <confirm-update-settings
       v-if="showModal"
       ref="modal"
@@ -264,11 +264,46 @@
 </script>
 
 <style>
+  h5 {
+    color: white;
+    font-weight: 800;
+  }
+  .settings-page label {
+    color: white;
+    font-weight: bold;
+  }
   .number-label {
     min-width: 50px;
   }
 
   .input-wrapper {
     padding-top: 3px;
+  }
+
+  /*.checkbox .toggle {*/
+    /*border-color: #222 !important;*/
+    /*box-shadow: none !important;*/
+  /*}*/
+
+  /*.checkbox .toggle-on,*/
+  /*.checkbox .toggle-on:hover,*/
+  /*.checkbox .toggle-on:active,*/
+  /*.checkbox .toggle-on:focus,*/
+  /*.checkbox .toggle-on:visited*/
+  /*{*/
+    /*background:  #c0a757 !important;*/
+    /*color: #222 !important;*/
+  /*}*/
+
+  /*.checkbox .toggle-off {*/
+    /*background: #222 !important;*/
+    /*color: darkgray !important;*/
+  /*}*/
+  .checkbox .toggle-on {
+    color: #222;
+  }
+
+  .checkbox .toggle-off {
+    background-color: #222;
   }
 </style>

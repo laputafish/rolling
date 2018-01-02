@@ -19,7 +19,8 @@
         <!--</router-link>-->
       <!--</li>-->
     <!--</ul>-->
-    <a class="navbar-brand" :class="{'mx-auto':command=='','mr-auto':command!==''}" href="#">Lottery Draw 2018</a>
+    <a class="navbar-brand" :class="{'mx-auto':command=='','mr-auto':command!==''}" href="#">Lottery Draw
+2018</a>
     <ul class="nav navbar-nav ml-auto">
       <li class="nav-item">
         <button v-if="command" @click="onButtonClick" class="btn btn-primary " type="button"

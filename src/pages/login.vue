@@ -122,11 +122,16 @@ export default {
   /* Chrome 10-25, Safari 5.1-6 */
   /* background: linear-gradient(to bottom, #FFB88C, #DE6262); */
   /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  background: #DDD;
+  /*background: #DDD;*/
+  background-color: transparent;
   /* fallback for old browsers */
   float: left;
   width: 100%;
   padding:10px;
+}
+
+.login-block label {
+  color: white;
 }
 
 .carousel-inner {
@@ -144,9 +149,9 @@ export default {
 
 @media(min-width: 480px) {
   .login-block {
-    background: -webkit-linear-gradient(to bottom, #CCC, #222);
+    /*background: -webkit-linear-gradient(to bottom, #CCC, #222);*/
     /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to bottom, #CCC, #222);
+    /*background: linear-gradient(to bottom, #CCC, #222);*/
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     padding: 50px 0;
   }
@@ -164,7 +169,7 @@ export default {
   /*min-height: 500px;*/
 /*}*/
 .container {
-  background: #fff;
+  background: #222;
   border-radius: 10px;
   box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
 }
@@ -225,7 +230,8 @@ export default {
   font-weight: 800;
   font-size: 30px;
   /* color: #DE6262; */
-  color: #007bff;
+  /*color: #007bff;*/
+  color: #c0a757;
 }
 
 .login-sec h2:after {
@@ -233,7 +239,8 @@ export default {
   width: 100px;
   height: 5px;
   /* background: #FEB58A; */
-  background: #007bff;
+  /* background: #007bff; */
+  background-color: #c0a757;
   display: block;
   margin-top: 20px;
   border-radius: 3px;
@@ -272,4 +279,18 @@ export default {
   border-radius: 3px;
 }
 
+.btn-gold,
+.btn-gold:active,
+.btn-gold:focus {
+  background-color: #c0a757;
+  color: white;
+}
+.btn-gold:hover {
+  background-color: #c6af67;
+  color: white;
+}
+.btn-gold:disabled {
+  background-color: #d2c189;
+  color: white;
+}
 </style>

@@ -14,7 +14,7 @@
             @mouseleave="mouseleave"
             type="button"
             :class="drawButtonClass"
-            class="py-5 btn btn-large btn-block">
+            class="py-5 btn btn-large btn-block btn-draw">
             <h1>Draw</h1>
           </button>
         </div>
@@ -22,7 +22,7 @@
       <div class="row">
         <div class="col-sm-12">
           <div class="progress">
-            <div class="progress-value">{{ progressValue }}</div>
+            <div class="progress-value text-white">{{ progressValue }}</div>
             <div class="progress-bar bg-warning process-indicator"
                  :class="progressbarClass"
                  :style="progressStyle"
@@ -53,13 +53,13 @@
         <button
           @click="identify"
           type="button"
-          class="text-lg btn btn-xl btn-outline-primary col-6 p-3">
+          class="text-lg btn btn-xl btn-outline-draw col-6 p-3">
           <h4 class="px-1 m-0 text-center">Identify Active PC</h4>
         </button>
         <button
           @click="lock"
           type="button"
-          class="btn btn-xl btn-outline-primary col-6 p-4">
+          class="btn btn-xl btn-outline-draw col-6 p-4">
           <h4 class="px-1 text-center">
             <i
               class="fa fa-fw"
@@ -381,11 +381,11 @@
         let vm = this
         switch (vm.drawButtonState) {
           case 'preparing':
-            return 'btn-primary'
+            return 'btn-draw-primary'
           case 'ready':
-            return 'btn-success'
+            return 'btn-draw-success'
           default:
-            return 'btn-danger'
+            return 'btn-draw-danger'
         }
       },
       progressbarClass () {
@@ -425,37 +425,110 @@
     transition: none !important;
   }
 
+  button.btn-draw {
+    background-color: #111;
+    color: #c0a757;
+    border-color: transparent;
+    box-shadow: none !important;
+  }
+
+  button.btn-draw:active,
+  button.btn-draw:focus {
+    border-color: transparent;
+  }
+
+  button.btn-draw:disabled {
+    opacity: .9;
+    background-color: darkgray;
+    cursor: not-allowed !important;
+  }
+  button.btn-draw:hover {
+    background-color: #222;
+    color: white;
+  }
+  button.btn-draw.btn-draw-success {
+    background-color:green;
+    border-color: green;
+  }
+
+  button.btn-draw.btn-draw-danger {
+    background-color:red;
+    border-color: red;
+  }
+
   .button-row button {
     cursor: pointer;
-    color: #007bff;
+    /*color: #007bff;*/
+    background-color: #111;
+    color: #c0a757;
+  }
+
+  .button-row button.btn-outline-draw {
+    border: rgba(255,255,255,.5);
   }
 
   .button-row button:active {
-    background-color: #007bff;
-    color: white;
+    /* background-color: #007bff; */
+    /* color: white; */
+    background-color: #222;
+    color: #c0a757;
   }
+
+  /*.btn-outline-primary:hover {*/
+    /*color: #fff;*/
+    /*background-color: #111;*/
+    /*border-color: #333;*/
+  /*}*/
+
+  .btn-outline-draw:not([disabled]):not(.disabled):active,
+  .btn-outline-draw:not([disabled]):not(.disabled).active,
+  .show > .btn-outline-draw.dropdown-toggle {
+    color: #c0a757;
+    background-color: #333;
+    border-color: #444;
+    -webkit-box-shadow: 0 0 0 0.2rem rgba(33, 33, 33, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(22, 22, 22, 0.5)
+  }
+
+
   .button-row button h4 {
     white-space: normal;
   }
-  .button-row button:focus {
+
+  .button-row button:focus,
+  .button-row button:active {
     box-shadow: none;
-    background-color: transparent;
-    color: #007bff;
+    background-color: #222;
+    color: #c0a757;
+    border-color: #333;
   }
+
+  .button-row button:hover {
+    background-color: #222;
+    color: white !important;
+  }
+
   .html.no-touch .button-row button:hover {
-    background-color: #4da3ff;
-    color: white;
+    background-color: #222;
+    color: white !important;
   }
+
   .button-row {
     margin-bottom:60px;
   }
+
   .progress {
     font-size: 16px;
     height: 22px;
+    background-color: #444;
   }
+
   .progress-value {
     position: absolute;
     width: 100%;
     text-align: center;
+    left: 0;
+    top: 0;
   }
+
 </style>

@@ -1,5 +1,6 @@
 <template>
   <div id="controlPanel">
+    <div class="backdrop"></div>
     <my-nav-pills v-if="$route.path!='/cp/login'"></my-nav-pills>
     <router-view></router-view>
   </div>
@@ -36,5 +37,30 @@
 </script>
 
 <style>
+#controlPanel {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: aboslute;
+}
 
+  #controlPanel .backdrop {
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    position: absolute;
+    background-image: url(/static/img/mobile_bkgd.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    opacity: 0.8;
+  }
+
+ .bg-gold-dark {
+   background-color: #111;
+   opacity: 1;
+ }
 </style>

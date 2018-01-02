@@ -72,7 +72,13 @@
 
 <style>
   .results-drawn-number {
+    background-color: #111;
+    color: #c0a757;
     min-width: 60px;
+  }
+
+  .results-drawn-number:hover {
+    color: white;
   }
 
   .index-number {
