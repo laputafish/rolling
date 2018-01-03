@@ -1,6 +1,6 @@
 <template>
   <div id="home">
-    <div class="active-number-wrapper">
+    <div class="active-number-wrapper" :style="activeNumberTopStyle">
       <div class="active-number" :style="activeNumberStyle" v-if="useText">{{ number }}</div>
       <div class="active-number digit" :style="digit2Style" :class="'digit'+digit2" v-if="!useText">&nbsp;</div>
       <div class="active-number digit" :style="digit1Style" :class="'digit'+digit1" v-if="!useText">&nbsp;</div>
@@ -233,6 +233,10 @@
         if (typeof settings.footerPaneHeight !== 'undefined') {
           vm.footerPaneHeight = settings.footerPaneHeight
         }
+        if (typeof settings.activeNumberTop !== 'undefined') {
+          vm.activeNumberTop = parseInt(settings.activeNumberTop)
+        }
+        console.log('updateSettings :: activeNumberTop = ' + vm.activeNumberTop)
       },
       initNumbers () {
         let vm = this
@@ -417,6 +421,16 @@
         return {
           width: digitWidth + 'px'
         }
+      },
+      activeNumberTopStyle () {
+        let vm = this
+        if (vm.activeNumberTop) {
+          return {
+            top: vm.activeNumberTop + '%'
+          }
+        } else {
+          return {}
+        }
       }
     },
     data () {
@@ -456,7 +470,8 @@
           123
         ],
         exceptions: '',
-        footerPaneHeight: 300
+        footerPaneHeight: 300,
+        activeNumberTop: 0
       }
     }
   }

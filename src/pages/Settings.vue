@@ -134,6 +134,17 @@
             v-model="footerPaneHeight"
             placeholder="Panel height for drawn no. (86 for one row)">
         </div>
+        <div class="form-group col-6 col-md-4">
+          <label for="activeNumberTop">Drawing Number Top Position, % from top of screen, 0 for default (54)</label>
+          <input
+            type="number"
+            tips="sdfdsds"
+            class="form-control"
+            id="activeNumberTop"
+            name="activeNumberTop"
+            v-model="activeNumberTop"
+            placeholder="(Position of drawing number: % from screen top)">
+        </div>
 
         <div class="form-group col-6 col-md-4 checkbox">
           <label for="showDrawnNumbers">Show Numbers</label><br/>
@@ -189,6 +200,7 @@
         releaseDuration: 2,
 
         footerPaneHeight: 300,
+        activeNumberTop: 0,
         exceptions: ''
       }
     },
@@ -219,6 +231,7 @@
         if (typeof values.releaseDuration !== 'undefined') vm.releaseDuration = parseInt(values.releaseDuration)
 
         if (typeof values.footerPaneHeight !== 'undefined') vm.footerPaneHeight = values.footerPaneHeight
+        if (typeof values.activeNumberTop !== 'undefined') vm.activeNumberTop = values.activeNumberTop
         if (typeof values.exceptions !== 'undefined') vm.exceptions = values.exceptions
 
         if (typeof values.numberWidths !== 'undefined') {
@@ -314,6 +327,7 @@
           startOffset: vm.startOffset,
           releaseDuration: vm.releaseDuration,
           footerPaneHeight: vm.footerPaneHeight,
+          activeNumberTop: vm.activeNumberTop,
           exceptions: vm.exceptions
         })
         vm.$toastr.s('Saved.')
