@@ -26,7 +26,7 @@
     <vue-toastr
       ref="toastr"
       click-close="true"></vue-toastr>
-    <div class="content-pane container">
+    <div class="content-pane container" style="padding-bottom:50px;">
       <div class="row">
         <div class="form-group col-6 col-md-4">
           <label for="startNumber">Start Number</label>
@@ -68,8 +68,41 @@
             v-model="digitScale"
             placeholder="Digit scale ratio">
         </div>
+        <div class="form-group col-12 col-lg-6">
+          <label for="endNumber">Exceptions (use comma to separate numbers)</label>
+          <input
+            type="text"
+            class="form-control"
+            id="exceptions"
+            name="exceptions"
+            v-model="exceptions"
+            placeholder="(Input exceptions)">
+        </div>
         <div class="col-12">
-          <h5>Drawn Number on Frontend</h5>
+          <h5>TOUCH RESPONSE</h5>
+        </div>
+        <div class="form-group col-6 col-md-4">
+          <label for="startNumber">Start Offset (sec)</label>
+          <input
+            type="number"
+            class="form-control"
+            id="startOffset"
+            name="startOffset"
+            v-model="startOffset"
+            placeholder="Start offset (sec)">
+        </div>
+        <div class="form-group col-6 col-md-4">
+          <label for="endNumber">Duration (sec)</label>
+          <input
+            type="number"
+            class="form-control"
+            id="releaseDuration"
+            name="releaseDuration"
+            v-model="releaseDuration"
+            placeholder="Release duration (sec)">
+        </div>
+        <div class="col-12">
+          <h5>DRAWN NUMBERS PANEL</h5>
         </div>
         <div class="form-group col-6 col-md-4">
           <label for="drawnNumberColor">Text Color</label>
@@ -90,6 +123,16 @@
             name="drawnNumberBkgdColor"
             v-model="drawnNumberBkgdColor"
             placeholder="Drawn number background color">
+        </div>
+        <div class="form-group col-6 col-md-4">
+          <label for="footerPaneHeight">Panel Height (86 for one row)</label>
+          <input
+            type="number"
+            class="form-control"
+            id="footerPaneHeight"
+            name="footerPaneHeight"
+            v-model="footerPaneHeight"
+            placeholder="Panel height for drawn no. (86 for one row)">
         </div>
 
         <div class="form-group col-6 col-md-4 checkbox">
@@ -140,7 +183,13 @@
         numberWidths: [10],
 
         showModal: false,
-        isStartEndNumbersChanged: false
+        isStartEndNumbersChanged: false,
+
+        startOffset: 1,
+        releaseDuration: 2,
+
+        footerPaneHeight: 300,
+        exceptions: ''
       }
     },
     mounted () {
@@ -165,6 +214,12 @@
         if (typeof values.drawnNumberBkgdColor !== 'undefined') vm.drawnNumberBkgdColor = values.drawnNumberBkgdColor
         if (typeof values.showDrawnNumbers !== 'undefined') vm.showDrawnNumbers = values.showDrawnNumbers
         if (typeof values.showButtons !== 'undefined') vm.showButtons = values.showButtons
+
+        if (typeof values.startOffset !== 'undefined') vm.startOffset = parseInt(values.startOffset)
+        if (typeof values.releaseDuration !== 'undefined') vm.releaseDuration = parseInt(values.releaseDuration)
+
+        if (typeof values.footerPaneHeight !== 'undefined') vm.footerPaneHeight = values.footerPaneHeight
+        if (typeof values.exceptions !== 'undefined') vm.exceptions = values.exceptions
 
         if (typeof values.numberWidths !== 'undefined') {
           vm.numberWidths = values.numberWidths.split(',')
@@ -255,7 +310,11 @@
           drawnNumberBkgdColor: vm.drawnNumberBkgdColor,
           showDrawnNumbers: vm.showDrawnNumbers,
           showButtons: vm.showButtons,
-          numberWidths: vm.numberWidths.join(',')
+          numberWidths: vm.numberWidths.join(','),
+          startOffset: vm.startOffset,
+          releaseDuration: vm.releaseDuration,
+          footerPaneHeight: vm.footerPaneHeight,
+          exceptions: vm.exceptions
         })
         vm.$toastr.s('Saved.')
       }
@@ -305,5 +364,11 @@
 
   .checkbox .toggle-off {
     background-color: #222;
+  }
+
+  .content-pane .row h5 {
+    background-color: #222;
+    padding: 3px 2px;
+    border-radius:10px;
   }
 </style>

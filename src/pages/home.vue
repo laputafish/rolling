@@ -6,7 +6,7 @@
       <div class="active-number digit" :style="digit1Style" :class="'digit'+digit1" v-if="!useText">&nbsp;</div>
       <div class="active-number digit" :style="digit0Style" :class="'digit'+digit0" v-if="!useText">&nbsp;</div>
     </div>
-    <div id="footer-pane">
+    <div id="footer-pane" :style="footerPaneStyle">
       <div class="drawn-numbers">
         <div
           v-for="d in drawnNumbers"
@@ -55,15 +55,29 @@
       },
       adjustNumbers () {
         let vm = this
+        let i = 0
+        let j = 0
+        console.log('drawnNumbers: ', vm.drawnNumbers)
         if (vm.drawnNumbers) {
-          for (var i = 0; i < vm.drawnNumbers.length; i++) {
+          for (i = 0; i < vm.drawnNumbers.length; i++) {
             let number = vm.drawnNumbers[i].number
-            for (var j = 0; j < vm.numbers.length; j++) {
+            for (j = 0; j < vm.numbers.length; j++) {
               if (vm.numbers[j] === number) {
                 console.log('remove number: ' + number)
                 vm.numbers.splice(j, 1)
                 break
               }
+            }
+          }
+        }
+        console.log('adjustNumbers :: ecxeptions: ', vm.exceptions)
+        let exceptNumbers = vm.exceptions.split(',')
+        for (i = 0; i < exceptNumbers.length; i++) {
+          let number = parseInt(exceptNumbers[i].trim())
+          for (j = 0; j < vm.numbers.length; j++) {
+            if (vm.numbers[j] === number) {
+              console.log('except number: ' + number)
+              vm.numbers.splice(j, 1)
             }
           }
         }
@@ -213,6 +227,12 @@
         if (typeof settings.showButtons !== 'undefined') {
           vm.showButtons = settings.showButtons
         }
+        if (typeof settings.exceptions !== 'undefined') {
+          vm.exceptions = settings.exceptions
+        }
+        if (typeof settings.footerPaneHeight !== 'undefined') {
+          vm.footerPaneHeight = settings.footerPaneHeight
+        }
       },
       initNumbers () {
         let vm = this
@@ -266,22 +286,6 @@
         console.log('station on(value) active = ' + (vm.isStationActive ? 'yes' : 'no'))
       })
 
-//      stationsRef.once('value', () => {
-//        let ref = stationsRef.push({
-//          station: getCurrDateTime()
-//        })
-//        vm.stationKey = ref.key
-//        console.log('stationKey = ' + vm.stationKey)
-//        console.log('stationsRef.length = ' + stationsRef.length)
-//        for (var i = 0; i < vm.stations.length; i++) {
-//          let key = vm.stations[i]['.key']
-//          if (key !== vm.stationKey) {
-//            console.log('remove station #' + key)
-//            stationsRef.child(key).remove()
-//          }
-//        }
-//      })
-
       // Settings
       settingsRef.on('value', (snapshot) => {
         let settings = snapshot.val()
@@ -300,21 +304,6 @@
             // }
             vm.showNumber()
           })
-        // if (vm.settings) {
-        //   if (vm.settings.length > 0) {
-        //     vm.updateSettings(vm.settings[0])
-        //   }
-        //   drawnNumbersRef.once('value', () => {
-        //     vm.initNumbers()
-        //     vm.adjustNumbers()
-        //     vm.number = 0
-        //     // vm.number = vm.endNumber
-        //     // if (vm.numbers.length > 0) {
-        //     //   vm.number = vm.numbers[0]
-        //     // }
-        //     vm.showNumber()
-        //   })
-        // }
         }
       })
 
@@ -388,6 +377,12 @@
 //      })
     },
     computed: {
+      footerPaneStyle () {
+        let vm = this
+        return {
+          height: vm.footerPaneHeight + 'px'
+        }
+      },
       getDigit0Class () {
         let vm = this
         return 'digit' + vm.number % 10
@@ -459,7 +454,9 @@
           107, // 7
           127, // 8
           123
-        ]
+        ],
+        exceptions: '',
+        footerPaneHeight: 300
       }
     }
   }
@@ -502,7 +499,7 @@
     vertical-align:middle;
     height: 100%;
     background-color: black;
-    position: absolute;
+    position: fixed;
     right: 0;
     left: 0;
     font-family: Arial;
@@ -542,7 +539,7 @@
       /*background-position: center;*/
     }
     .active-number-wrapper {
-      top: 60%;
+      top: 54%;
     }
   }
   .drawn-numbers {

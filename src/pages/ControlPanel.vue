@@ -51,7 +51,7 @@
     z-index: -1;
     top: 0;
     left: 0;
-    position: absolute;
+    position: fixed;
     background-image: url(/static/img/mobile_bkgd.jpg);
     background-repeat: no-repeat;
     background-position: center;

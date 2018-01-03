@@ -37,7 +37,7 @@
         <div class="col-12 text-center">
           <h4 class="mt-2">
             <span class="panel-remark badge badge-secondary p-2">
-            Touch button for {{ offsetTimeOn }} to {{ offsetTimeOff }} seconds to start.
+            Touch button after {{ startOffset }}s within {{ releaseDuration }}s to start.
           </span>
           </h4>
         </div>
@@ -105,6 +105,9 @@
         lastStationKey: '',
         locked: false,
 
+        startOffset: 1,
+        releaseDuration: 3,
+
         progressValue: ''
       }
     },
@@ -120,11 +123,27 @@
       // if (vm.$store.state.panelKey === '') {
       //   vm.$router.push('/cp/login')
       // }
-      settingsRef.on('value', function () {
-        for (var key in vm.dbSettings) {
-          vm.settings.duration = vm.dbSettings[key].duration
+      settingsRef.on('value', (snapshot) => {
+        let settings = snapshot.val()
+        let values = settings['values']
+        console.log('settingsRef.on(valu) :: values: ', values)
+
+        if (typeof values.duration !== 'undefined') {
+          vm.settings.duration = values.duration
           vm.max = vm.settings.duration * 10
         }
+        if (typeof values.startOffset !== 'undefined') {
+          vm.startOffset = parseInt(values.startOffset)
+        }
+        if (typeof values.releaseDuration !== 'undefined') {
+          vm.releaseDuration = parseInt(values.releaseDuration)
+        }
+        console.log('startOffset: ', vm.startOffset)
+        console.log('releaseDuration: ', vm.releaseDuration)
+//        for (var key in vm.dbSettings) {
+//          vm.settings.duration = vm.dbSettings[key].duration
+//          vm.max = vm.settings.duration * 10
+//        }
       })
       // db.ref('actions').once('value', function () {
       //   console.log('actionsRef:', vm.actionsRef)
@@ -181,9 +200,9 @@
         let vm = this
         vm.mouseDownTimerId = setInterval(() => {
           let duration = (new Date()) - this.mouseDownStartTime
-          if (duration > vm.offsetTimeOff * 1000) {
+          if (duration > vm.offsetTimeOff * vm.releaseDuration * 1000) {
             vm.drawButtonState = 'expired'
-          } else if (duration > vm.offsetTimeOn * 1000) {
+          } else if (duration > vm.offsetTimeOn * vm.startOffset * 1000) {
             vm.drawButtonState = 'ready'
           } else {
             vm.drawButtonState = 'preparing'
