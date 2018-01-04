@@ -3,7 +3,7 @@
     @mouseup="screenMouseUp"
     @touchend="screenMouseUp">
     <my-navbar></my-navbar>
-    <div class="content-pane container">
+    <div class="content-pane container panel-pane">
       <div class="row">
         <div class="col-sm-12">
           <button :disabled="processing"
@@ -550,4 +550,7 @@
     top: 0;
   }
 
+.panel-pane {
+  margin-top: 40%;
+}
 </style>
