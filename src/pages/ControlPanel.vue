@@ -1,8 +1,8 @@
 <template>
   <div id="controlPanel">
     <div class="backdrop"></div>
-    <my-nav-pills v-if="$route.path!='/cp/login'"></my-nav-pills>
     <router-view></router-view>
+    <my-nav-pills v-if="$route.path!='/cp/login'"></my-nav-pills>
   </div>
 </template>
 
@@ -63,4 +63,11 @@
    background-color: #111;
    opacity: 1;
  }
+
+  .nav {
+    display: -webkit-flex;
+    -webkit-flex-wrap: wrap;
+    display: flex;
+    flex-wrap: wrap;
+  }
 </style>

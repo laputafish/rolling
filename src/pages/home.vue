@@ -71,9 +71,10 @@
           }
         }
         console.log('adjustNumbers :: ecxeptions: ', vm.exceptions)
-        let exceptNumbers = vm.exceptions.split(',')
+        let exceptNumbers = vm.exceptions.trim().split(',')
         for (i = 0; i < exceptNumbers.length; i++) {
-          let number = parseInt(exceptNumbers[i].trim())
+          let numberStr = exceptNumbers[i]
+          let number = parseInt(numberStr)
           for (j = 0; j < vm.numbers.length; j++) {
             if (vm.numbers[j] === number) {
               console.log('except number: ' + number)
@@ -563,20 +564,20 @@
     background-color: transparent;
   }
   .drawn-number {
-    font-size: 32px;
-    margin: 5px;
+    font-size: 24px;
+    margin: 4px;
     background-color: black;
     border-radius: .4em;
     color: white;
     padding: .4em .2em .3em .2em;
     display: inline-block;
-    line-height: 32px;
+    line-height: 24px;
     min-width: 1.6em;
     text-align: center;
   }
   @media(min-width: 480px) {
     .drawn-number {
-      font-size:64px;
+      font-size:48px;
     }
   }
   #footer-pane {

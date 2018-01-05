@@ -1,72 +1,75 @@
 <template>
   <div
+    class="panel-pane-wrapper"
     @mouseup="screenMouseUp"
     @touchend="screenMouseUp">
     <my-navbar></my-navbar>
-    <div class="content-pane container panel-pane">
-      <div class="row">
-        <div class="col-sm-12">
-          <button :disabled="processing"
-            @mousedown="mousedown"
-            @touchstart="mousedown"
-            @mouseup="mouseup"
-            @touchend="mouseup"
-            @mouseleave="mouseleave"
-            type="button"
-            :class="drawButtonClass"
-            class="py-5 btn btn-large btn-block btn-draw">
-            <h1>Draw</h1>
-          </button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="progress">
-            <div class="progress-value text-white">{{ progressValue }}</div>
-            <div class="progress-bar bg-warning process-indicator"
-                 :class="progressbarClass"
-                 :style="progressStyle"
-                 role="progressbar"
-                 :aria-valuenow="value"
-                 :aria-valuemin="min"
-                 :aria-valuemax="max"></div>
+    <div class="content-pane panel-pane">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <button :disabled="processing"
+              @mousedown="mousedown"
+              @touchstart="mousedown"
+              @mouseup="mouseup"
+              @touchend="mouseup"
+              @mouseleave="mouseleave"
+              type="button"
+              :class="drawButtonClass"
+              class="btn btn-large btn-block btn-draw">
+              <h1>Draw</h1>
+            </button>
           </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-12 text-center">
-          <h4 class="mt-2">
-            <span class="panel-remark badge badge-secondary p-2">
-            Touch button after {{ startOffset }}s within {{ releaseDuration }}s to start.
-          </span>
-          </h4>
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="progress">
+              <div class="progress-value text-white">{{ progressValue }}</div>
+              <div class="progress-bar bg-warning process-indicator"
+                   :class="progressbarClass"
+                   :style="progressStyle"
+                   role="progressbar"
+                   :aria-valuenow="value"
+                   :aria-valuemin="min"
+                   :aria-valuemax="max"></div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-12">
-          <ul class="list-group">
-            <li class="list-group-item" v-for="number in drawnNumbers">{{ number }}</li>
-          </ul>
+        <div class="row">
+          <div class="col-12 text-center">
+            <h4 class="mt-2">
+              <span class="panel-remark badge badge-secondary p-2">
+              Touch button after {{ startOffset }}s within {{ releaseDuration }}s to start.
+            </span>
+            </h4>
+          </div>
         </div>
-      </div>
-      <div class="row fixed-bottom button-row btn-group mx-1">
-        <button
-          @click="identify"
-          type="button"
-          class="text-lg btn btn-xl btn-outline-draw col-6 p-3">
-          <h4 class="px-1 m-0 text-center">Identify Active PC</h4>
-        </button>
-        <button
-          @click="lock"
-          type="button"
-          class="btn btn-xl btn-outline-draw col-6 p-4">
-          <h4 class="px-1 text-center">
-            <i
-              class="fa fa-fw"
-              :class="{'fa-lock':locked, 'fa-unlock':!locked}"></i>
-              <span>Lock PC</span>
-          </h4>
-        </button>
+        <!--<div class="row">-->
+          <!--<div class="col-sm-12">-->
+            <!--<ul class="list-group">-->
+              <!--<li class="list-group-item" v-for="number in drawnNumbers">{{ number }}</li>-->
+            <!--</ul>-->
+          <!--</div>-->
+        <!--</div>-->
+        <div class="row button-row btn-group mx-1">
+          <button
+            @click="identify"
+            type="button"
+            class="text-lg btn btn-xl btn-outline-draw col-6 p-3">
+            <h4 class="px-1 m-0 text-center">Identify Active PC</h4>
+          </button>
+          <button
+            @click="lock"
+            type="button"
+            class="btn btn-xl btn-outline-draw col-6 p-4">
+            <h4 class="px-1 text-center">
+              <i
+                class="fa fa-fw"
+                :class="{'fa-lock':locked, 'fa-unlock':!locked}"></i>
+                <span>Lock PC</span>
+            </h4>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -475,15 +478,21 @@
     border-color: red;
   }
 
+  button.btn-draw {
+    padding: 100px 0;
+  }
+
   .button-row button {
     cursor: pointer;
     /*color: #007bff;*/
     background-color: #111;
     color: #c0a757;
+    border: 2px solid transparent !important;
   }
 
   .button-row button.btn-outline-draw {
-    border: rgba(255,255,255,.5);
+    // border: rgba(255,255,255,.5);
+    border-color: transparent;
   }
 
   .button-row button:active {
@@ -510,23 +519,26 @@
   }
 
 
-  .button-row button h4 {
+  .btn-group button h4 {
     white-space: normal;
   }
 
-  .button-row button:focus,
-  .button-row button:active {
+  .btn-group button:focus,
+  .btn-group button:active {
     box-shadow: none;
     background-color: #222;
     color: #c0a757;
-    border-color: #333;
+    /*border-color: #333;*/
   }
 
-  .button-row button:hover {
+  .btn-group button:hover {
     background-color: #222;
     color: white !important;
   }
 
+  .btn-group {
+    display: flex;
+  }
   .html.no-touch .button-row button:hover {
     background-color: #222;
     color: white !important;
@@ -550,7 +562,24 @@
     top: 0;
   }
 
-.panel-pane {
-  margin-top: 40%;
-}
+  .panel-pane {
+    width: 100%;
+    top: 12%;
+    position: absolute;
+    margin-top: 0 auto 0 auto;
+    padding:0;
+  }
+
+
+  @media(min-width:480px) {
+    .panel-pane {
+      top: 10%;
+    }
+  }
+
+  .panel-pane-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
 </style>
