@@ -73,15 +73,37 @@
         console.log('adjustNumbers :: ecxeptions: ', vm.exceptions)
         let exceptNumbers = vm.exceptions.trim().split(',')
         for (i = 0; i < exceptNumbers.length; i++) {
-          let numberStr = exceptNumbers[i]
-          let number = parseInt(numberStr)
-          for (j = 0; j < vm.numbers.length; j++) {
-            if (vm.numbers[j] === number) {
-              console.log('except number: ' + number)
-              vm.numbers.splice(j, 1)
+          let numberSetStr = exceptNumbers[i]
+          let numbersStr = numberSetStr.split('-')
+          if (numbersStr.length === 1) {
+            let p = vm.numbers.indexOf(parseInt(numbersStr[0]))
+            if (p >= 0) {
+              vm.numbers.splice(p, 1)
+            }
+          } else {
+            let firstNumber = parseInt(numbersStr[0])
+            let lastNumber = parseInt(numbersStr[1])
+            for (let n = firstNumber; n <= lastNumber; n++) {
+              let pp = vm.numbers.indexOf(n)
+              if (pp >= 0) {
+                vm.numbers.splice(pp, 1)
+              }
             }
           }
         }
+
+//        let exceptNumbers = vm.exceptions.trim().split(',')
+//        for (i = 0; i < exceptNumbers.length; i++) {
+//          let numberStr = exceptNumbers[i]
+//          let number = parseInt(numberStr)
+//          for (j = 0; j < vm.numbers.length; j++) {
+//            if (vm.numbers[j] === number) {
+//              console.log('except number: ' + number)
+//              vm.numbers.splice(j, 1)
+//            }
+//          }
+//        }
+        console.log('adjustNumbers: ', vm.numbers)
       },
       startRolling () {
         let vm = this
